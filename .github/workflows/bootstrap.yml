@@ -1,0 +1,180 @@
+name: bootstrap
+
+# One-time AWS account setup, run from GitHub instead of a laptop or CloudShell.
+# Creates, with terraform-bootstrap/:
+#   - the S3 bucket that holds every Terraform state
+#   - week3-gha-plan   (read-only, pull-request plans)
+#   - week3-gha-deploy (apply + deploy, main branch and dev/prod environments only)
+#
+# It signs in with a "bootstrap" role you create once by hand (docs/week3/BOOTSTRAP.md),
+# because the roles it creates don't exist yet. The job runs in the protected "prod"
+# environment, so the prod reviewers must approve it (the role can manage IAM).
+#
+# Run it first with "apply" unchecked to review the plan, then again with "apply" checked.
+# Safe to re-run: resources that already exist are adopted, not duplicated.
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply the changes (unchecked = plan only)"
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+concurrency:
+  group: bootstrap
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  STATE_KEY: bootstrap/terraform.tfstate
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  bootstrap:
+    name: Bootstrap (${{ inputs.apply && 'apply' || 'plan only' }})
+    runs-on: ubuntu-latest
+    environment: prod
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: terraform-bootstrap
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the bootstrap role is configured
+        env:
+          ROLE_ARN: ${{ vars.AWS_BOOTSTRAP_ROLE_ARN }}
+        run: |
+          if [ -z "$ROLE_ARN" ]; then
+            echo "::error::Set the AWS_BOOTSTRAP_ROLE_ARN variable on the 'prod' environment (docs/week3/BOOTSTRAP.md, step 3)."
+            exit 1
+          fi
+
+      # Prints who GitHub says this job is (the "sub" claim). The bootstrap role's trust
+      # policy must allow exactly this value: compare them if the AWS login fails.
+      # Only the claims are shown, never the token itself.
+      - name: Show the identity GitHub presents to AWS
+        run: |
+          token=$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r .value)
+          echo "::add-mask::${token}"
+          payload=$(cut -d. -f2 <<<"${token}" | tr '_-' '/+')
+          while [ $(( ${#payload} % 4 )) -ne 0 ]; do payload="${payload}="; done
+          base64 -d <<<"${payload}" | jq '{sub, aud, repository, environment, ref}'
+
+      - name: Configure AWS credentials (bootstrap role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_BOOTSTRAP_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.12.2"
+          terraform_wrapper: false
+
+      - name: Find the state bucket
+        id: bucket
+        run: |
+          account=$(aws sts get-caller-identity --query Account --output text)
+          bucket="week3-tfstate-${account}"
+          echo "name=${bucket}" >> "$GITHUB_OUTPUT"
+          if out=$(aws s3api head-bucket --bucket "$bucket" 2>&1); then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "State bucket ${bucket} exists."
+          elif grep -qE '404|Not Found' <<<"$out"; then
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "State bucket ${bucket} doesn't exist yet: it will be created."
+          else
+            echo "$out"
+            echo "::error::Can't use bucket ${bucket}. 403 = the role has no S3 access (check AdministratorAccess on the bootstrap role)."
+            exit 1
+          fi
+
+      # When the bucket exists, the bootstrap keeps its own state in it.
+      # On the very first run it starts with local state and moves it into the
+      # bucket right after creating it (step "Move state into the bucket").
+      - name: terraform init
+        env:
+          BUCKET: ${{ steps.bucket.outputs.name }}
+          BUCKET_EXISTS: ${{ steps.bucket.outputs.exists }}
+        run: |
+          if [ "$BUCKET_EXISTS" = "true" ]; then
+            cat > ci_backend.tf <<EOF
+          terraform {
+            backend "s3" {
+              bucket       = "${BUCKET}"
+              key          = "${STATE_KEY}"
+              region       = "${AWS_REGION}"
+              encrypt      = true
+              use_lockfile = true
+            }
+          }
+          EOF
+          fi
+          terraform init -input=false
+
+          # Resources that exist in AWS but not in the state are adopted (imported).
+          if [ -z "$(terraform state list 2>/dev/null || true)" ]; then
+            bash import-existing.sh "$BUCKET"
+          fi
+
+      - name: terraform plan
+        env:
+          BUCKET: ${{ steps.bucket.outputs.name }}
+        run: |
+          terraform plan -input=false -out=tfplan \
+            -var "region=${AWS_REGION}" \
+            -var "github_owner=${{ github.repository_owner }}" \
+            -var "github_repo=${{ github.event.repository.name }}" \
+            -var "state_bucket_name=${BUCKET}" \
+            -var "create_oidc_provider=false"
+          {
+            echo "### Bootstrap plan"
+            echo '```'
+            terraform show -no-color tfplan | tail -c 60000
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: terraform apply
+        if: inputs.apply
+        run: terraform apply -input=false tfplan
+
+      - name: Move state into the bucket
+        if: inputs.apply && steps.bucket.outputs.exists == 'false'
+        env:
+          BUCKET: ${{ steps.bucket.outputs.name }}
+        run: |
+          cat > ci_backend.tf <<EOF
+          terraform {
+            backend "s3" {
+              bucket       = "${BUCKET}"
+              key          = "${STATE_KEY}"
+              region       = "${AWS_REGION}"
+              encrypt      = true
+              use_lockfile = true
+            }
+          }
+          EOF
+          terraform init -input=false -migrate-state -force-copy
+          terraform state list
+
+      - name: Values to copy into GitHub
+        if: inputs.apply
+        run: |
+          out=$(terraform output -json)
+          {
+            echo "### Add these as repository variables"
+            echo "Settings > Secrets and variables > Actions > Variables > New repository variable"
+            echo
+            echo "| Variable | Value |"
+            echo "|---|---|"
+            for name in AWS_REGION AWS_PLAN_ROLE_ARN AWS_DEPLOY_ROLE_ARN TF_STATE_BUCKET; do
+              echo "| \`${name}\` | \`$(jq -r ".${name}.value" <<<"$out")\` |"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

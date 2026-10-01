@@ -1,0 +1,10 @@
+.terraform/
+.build/
+*.tfstate
+*.tfstate.*
+tfplan
+crash.log
+# vendored at CI time by the infra workflow
+lambda/order_status/pymysql/
+lambda/order_status/PyMySQL*/
+lambda/order_status/global-bundle.pem

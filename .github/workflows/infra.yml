@@ -1,0 +1,129 @@
+name: infra
+
+# Terraform for the AWS side of Week 3: shared VPC, EKS and ECR, plus one full set
+# of data stores, queues, Lambda and IAM roles for dev and for prod. Runs with short-lived AWS credentials via GitHub OIDC.
+#
+#   pull request  -> fmt / validate / Checkov / plan (nothing is changed)
+#   push to main  -> plan + apply
+#   manual run    -> choose plan, apply or destroy (Actions tab > infra > Run workflow)
+
+on:
+  pull_request:
+    paths: ["terraform-aws/**", ".github/workflows/infra.yml"]
+  push:
+    branches: [main]
+    paths: ["terraform-aws/**", ".github/workflows/infra.yml"]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "What to do"
+        type: choice
+        options: [plan, apply, destroy]
+        default: plan
+
+permissions:
+  id-token: write # needed for GitHub OIDC -> AWS
+  contents: read
+
+concurrency:
+  group: terraform-state # never run two Terraform jobs against the same state
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  TF_VAR_region: ${{ vars.AWS_REGION || 'us-east-1' }}
+  TF_VAR_admin_principal_arn: ${{ vars.ADMIN_PRINCIPAL_ARN }}
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: terraform-aws
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pull requests get the read-only plan role; main / manual runs get the deploy role.
+      # (Both are created by the bootstrap workflow, see docs/week3/BOOTSTRAP.md.)
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ github.event_name == 'pull_request' && vars.AWS_PLAN_ROLE_ARN || vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 7200
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The order-status Lambda talks to MySQL: bundle pymysql and the RDS CA
+      # certificate next to its code, then run its unit tests.
+      - name: Lambda dependencies + tests
+        working-directory: terraform-aws/lambda/order_status
+        run: |
+          pip install --quiet --target . pymysql==1.1.1
+          curl -sSfo global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
+          python -m unittest -v
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.12.2"
+          terraform_wrapper: false
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive -diff
+        continue-on-error: true # reported, not blocking yet
+
+      - name: terraform init
+        run: >
+          terraform init -input=false
+          -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+          -backend-config="key=week3/terraform.tfstate"
+          -backend-config="region=${{ env.AWS_REGION }}"
+          -backend-config="use_lockfile=true"
+          -backend-config="encrypt=true"
+
+      - name: terraform validate
+        run: terraform validate
+
+      - name: Checkov (IaC security scan)
+        if: github.event_name == 'pull_request' || inputs.action == 'plan'
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform-aws
+          framework: terraform
+          quiet: true
+          soft_fail: true # findings are reviewed in the security notes, not blocking today
+
+      - name: terraform plan
+        if: inputs.action != 'destroy'
+        run: terraform plan -input=false -out=tfplan
+
+      - name: terraform apply
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.action == 'apply'
+        run: terraform apply -input=false tfplan
+
+      - name: Show outputs
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.action == 'apply'
+        run: terraform output
+
+      # --- teardown ---------------------------------------------------------
+      # The ALB is created by Kubernetes, not Terraform. Delete it first,
+      # otherwise the VPC cannot be removed.
+      - name: Remove load balancers created from Kubernetes
+        if: inputs.action == 'destroy'
+        continue-on-error: true
+        run: |
+          CLUSTER=$(terraform output -raw cluster_name)
+          aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+          kubectl delete ingress --all --all-namespaces --wait=true --timeout=5m
+          for ns in boutique-dev boutique-prod; do
+            kubectl -n "$ns" delete svc frontend-external --ignore-not-found --wait=true --timeout=5m
+          done
+          sleep 60
+
+      - name: terraform destroy
+        if: inputs.action == 'destroy'
+        run: terraform destroy -input=false -auto-approve

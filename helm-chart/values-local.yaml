@@ -1,0 +1,25 @@
+# Docker Desktop Kubernetes (local test of the Helm chart).
+# Uses the images built on your laptop by `docker compose build`
+# (they are tagged boutique/<service>:local), so nothing is pulled from a registry.
+#
+#   helm install boutique ./helm-chart -n boutique-local --create-namespace -f helm-chart/values-local.yaml
+#   shop: http://localhost
+
+images:
+  repository: boutique
+  tag: local
+
+frontend:
+  externalService: true   # LoadBalancer -> Docker Desktop publishes it on http://localhost
+
+cartDatabase:
+  type: redis
+  connectionString: "redis-cart:6379"
+  inClusterRedis:
+    create: true          # Redis pod instead of ElastiCache
+
+loadGenerator:
+  create: false           # saves laptop memory; set true to simulate users
+
+# inventoryservice needs DynamoDB, which only exists in AWS (or in the Compose setup),
+# so it stays off here (its default). The AWS values files turn it on.
