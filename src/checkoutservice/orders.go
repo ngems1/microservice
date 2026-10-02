@@ -114,7 +114,7 @@ func newOrderStore(ctx context.Context) (*orderStore, error) {
 		return nil, fmt.Errorf("aws config: %w", err)
 	}
 
-	tlsName, err := registerRDSTLS(host)
+	tlsCfg, err := rdsTLS(host)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func newOrderStore(ctx context.Context) (*orderStore, error) {
 	cfg.Net = "tcp"
 	cfg.Addr = host + ":" + port
 	cfg.DBName = name
-	cfg.TLSConfig = tlsName
+	cfg.TLS = tlsCfg
 	cfg.Timeout = 5 * time.Second
 	cfg.ReadTimeout = 10 * time.Second
 	cfg.WriteTimeout = 10 * time.Second
@@ -161,22 +161,24 @@ func newOrderStore(ctx context.Context) (*orderStore, error) {
 	return &orderStore{db: db, events: eventbridge.NewFromConfig(awsCfg), bus: bus}, nil
 }
 
-// registerRDSTLS enables TLS with certificate and host name verification against
-// the RDS CA bundle (shipped in the image). Without the bundle (tests), the system
-// roots are used.
-func registerRDSTLS(host string) (string, error) {
-	tc := &tls.Config{ServerName: host, MinVersion: tls.VersionTLS12}
-	if pem, err := os.ReadFile(rdsCABundle); err == nil {
-		pool := x509.NewCertPool()
-		if !pool.AppendCertsFromPEM(pem) {
-			return "", fmt.Errorf("no certificates in %s", rdsCABundle)
-		}
-		tc.RootCAs = pool
+// rdsTLS returns a TLS config that verifies the RDS server certificate and host
+// name against the RDS CA bundle shipped in the image. A missing or unreadable
+// bundle is an error: falling back to the system roots can never work with RDS
+// and only hides the real cause ("certificate signed by unknown authority").
+func rdsTLS(host string) (*tls.Config, error) {
+	path := os.Getenv("RDS_CA_BUNDLE")
+	if path == "" {
+		path = rdsCABundle
 	}
-	if err := mysql.RegisterTLSConfig("rds", tc); err != nil {
-		return "", fmt.Errorf("tls config: %w", err)
+	pem, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("RDS CA bundle: %w", err)
 	}
-	return "rds", nil
+	pool := x509.NewCertPool()
+	if !pool.AppendCertsFromPEM(pem) {
+		return nil, fmt.Errorf("RDS CA bundle: no certificates in %s", path)
+	}
+	return &tls.Config{ServerName: host, RootCAs: pool, MinVersion: tls.VersionTLS12}, nil
 }
 
 // dbSecret reads {"username": ..., "password": ...} and caches it for a few minutes.
