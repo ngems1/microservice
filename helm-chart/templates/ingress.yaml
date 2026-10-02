@@ -1,0 +1,31 @@
+{{- if and .Values.frontend.create .Values.frontend.ingress.enabled }}
+# Week 3: public entry point on AWS. The AWS Load Balancer Controller (kube-system)
+# sees this Ingress and creates one internet-facing ALB for this namespace,
+# named after the namespace (boutique-dev / boutique-prod).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: {{ .Release.Namespace | trunc 32 | quote }}
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /_healthz
+    alb.ingress.kubernetes.io/tags: {{ printf "Namespace=%s" .Release.Namespace | quote }}
+    {{- with .Values.frontend.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.frontend.ingress.className }}
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.frontend.name }}
+            port:
+              number: 80
+{{- end }}

@@ -1,0 +1,65 @@
+# Deploy pipeline
+
+```
+push to main ──► build ×12 ──► scan gate ──► deploy dev ──► (approval) ──► deploy prod
+                 (parallel)    (ECR scan)    migrate DB                    same images
+                                             helm upgrade
+                                             smoke test
+```
+
+| File | What it does |
+|---|---|
+| `.github/workflows/deploy.yml` | Picks the image tag, builds and pushes the 12 images, scans them, then calls `deploy-env.yml` for dev and prod |
+| `.github/workflows/deploy-env.yml` | Deploys one environment: Load Balancer Controller, DB migrations, Helm, smoke test, rollback |
+| `helm-chart/values-aws.yaml` | EKS settings common to dev and prod (service accounts, NetworkPolicies, ALB Ingress, ElastiCache) |
+| `helm-chart/values-dev.yaml`, `values-prod.yaml` | What differs between the two environments |
+| `helm-chart/templates/ingress.yaml` | The Ingress the controller turns into one ALB per environment |
+| `.github/workflows/isolation-test.yml`, `deploy/tests/isolation-test.sh` | After prod: proves dev can't reach prod (network + IAM), see ISOLATION.md |
+| `deploy/k8s/db-migrate.yaml` | Job that applies `db/migrations/*.sql` to RDS from inside the cluster |
+
+## When it runs
+
+- **Push to `main`** that touches `src/`, `helm-chart/`, `db/`, `deploy/` or the deploy workflows: dev and then prod.
+- **Manually** (Actions > deploy > Run workflow):
+  - `target = dev-only` stops after dev.
+  - `image_tag = <12-character commit SHA>` redeploys images that already exist, with no build. This is the **rollback** button.
+
+Prod always waits for a reviewer on the `prod` environment. If your repo can't have required reviewers (private repo on a free plan), prod deploys straight after dev.
+
+## The steps, and why
+
+1. **Image tag = commit SHA.** ECR tags are immutable, so a tag always means the same code. Prod gets exactly the images that passed in dev.
+2. **Scan gate.** ECR scans every image on push. A CRITICAL finding stops the run before anything reaches the cluster. Set the repository variable `SCAN_BLOCKING=false` to only report. ECR's scanner is used instead of a third-party scanner action, so no extra code runs with AWS credentials (see the Trivy GitHub Actions compromise of March 2026, CVE-2026-33634).
+3. **Load Balancer Controller.** One copy in `kube-system`, shared by both environments. Its AWS rights come from Pod Identity (Terraform).
+4. **Database migrations.** RDS is private, so a Kubernetes Job runs them inside the VPC. The password goes from Secrets Manager to a Secret that is deleted right after. The connection uses TLS with certificate checks. The SQL is safe to run again.
+5. **Helm.** `helm upgrade --install --rollback-on-failure`: if the new pods don't become ready within 10 minutes, Helm restores the previous version by itself.
+6. **Smoke test.** It checks that the ALB answers `/`, `/_healthz`, a product page and `/cart`, and that `inventoryservice /stock` returns stock from DynamoDB, which proves Pod Identity works. If the test fails, the workflow rolls back to the previous Helm revision.
+
+## Variables used
+
+| Variable | Where | Set by |
+|---|---|---|
+| `AWS_REGION`, `AWS_DEPLOY_ROLE_ARN`, `TF_STATE_BUCKET` | Repository | You, after the bootstrap (BOOTSTRAP.md) |
+| `SCAN_BLOCKING` | Repository, optional | `false` = report vulnerabilities without blocking |
+
+Everything else (registry, cluster, queues, tables, Redis, database) is read from the Terraform state, so nothing is copied by hand.
+
+## Useful commands (CloudShell)
+
+```bash
+aws eks update-kubeconfig --name week3-boutique-eks --region us-east-1
+kubectl -n boutique-dev get pods,ingress
+helm -n boutique-dev history boutique
+helm -n boutique-dev rollback boutique <revision>   # manual rollback
+kubectl -n boutique-dev logs deploy/inventoryservice
+```
+
+## Not wired yet
+
+The pipeline deploys everything, but three code changes are still to come:
+
+- checkoutservice publishing `OrderCreated` and saving the order in MySQL
+- productcatalogservice reading MySQL through Redis
+- emailservice consuming `notification-q`
+
+Until then, inventoryservice runs and seeds its stock, but no orders reach it.

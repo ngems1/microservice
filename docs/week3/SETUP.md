@@ -4,7 +4,7 @@ No local tools needed except GitHub Desktop and a browser. Terraform, Docker, ku
 
 ## 1. Workflows
 
-`.github/workflows/` must contain only our workflows: `bootstrap.yml` and `infra.yml`.
+`.github/workflows/` must contain only our workflows: `bootstrap.yml`, `infra.yml`, `deploy.yml`, `deploy-env.yml`, `isolation-test.yml` and `ci.yml` (pull-request checks, see [GITHUB-FLOW.md](GITHUB-FLOW.md)).
 
 ## 2. Put the folder on GitHub
 
@@ -29,7 +29,11 @@ Follow **[BOOTSTRAP.md](BOOTSTRAP.md)**: about 15 minutes of console clicks, the
 
 Actions tab > **infra** > Run workflow > action = `apply`. It takes about 25 to 35 minutes (EKS and the Multi-AZ prod database are the slow parts). It creates the shared VPC, EKS cluster and ECR repos, plus a full set of data stores, queues, Lambda and IAM roles for **dev** and for **prod**.
 
-## 6. Look at the cluster (optional, from CloudShell)
+## 6. Deploy the shop
+
+Actions > **deploy** > Run workflow (or push a change under `src/`, `helm-chart/` or `db/`). It builds and scans the 12 images, deploys **dev**, then waits for your approval to deploy the same images to **prod**. The shop's address is on the run's Summary page. Details: **[DEPLOY.md](DEPLOY.md)**.
+
+## 7. Look at the cluster (optional, from CloudShell)
 
 ```bash
 aws eks update-kubeconfig --name week3-boutique-eks --region us-east-1
@@ -41,4 +45,4 @@ If you get "Unauthorized", your IAM identity was not set in `ADMIN_PRINCIPAL_ARN
 
 ## Tear down (do this at the end of every day)
 
-Actions > infra > Run workflow > action = `destroy`. The running cost is roughly 9 to 12 USD per day (EKS control plane, 3 nodes, NAT gateway, 2 MySQL databases, 2 Redis nodes, logs).
+Actions > infra > Run workflow > action = `destroy`. It also removes the two ALBs. The next day: infra `apply`, then run deploy again (it rebuilds the images, because `destroy` also empties ECR). The running cost is roughly 9 to 12 USD per day (EKS control plane, 3 nodes, NAT gateway, 2 MySQL databases, 2 Redis nodes, logs).

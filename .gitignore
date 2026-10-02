@@ -18,3 +18,7 @@ pkg/
 .terraform.lock.hcl
 *.tfvars
 release/wi-kubernetes-manifests.yaml
+
+# files waiting to be deleted by hand
+_to_delete/
+__pycache__/

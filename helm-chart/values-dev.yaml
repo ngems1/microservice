@@ -1,0 +1,7 @@
+# dev (namespace boutique-dev): deployed automatically on every push to main.
+# Kept small: one replica of each service.
+
+inventoryService:
+  replicas: 1
+  # The Mug starts with 2 in stock, so a 3-mug order shows the InventoryFailed path.
+  stockOverrides: "6E92ZMYYFZ:2"

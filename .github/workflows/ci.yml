@@ -1,0 +1,119 @@
+name: ci
+
+# Pull-request checks (GitHub Flow). Nothing here touches AWS: it only proves the
+# change is safe to merge. Merging to main then deploys (deploy.yml) and applies
+# Terraform (infra.yml, whose plan also runs on the pull request).
+#
+# The branch rule on main requires the single check "ci-ok", which passes only
+# when every job below passed or was skipped because nothing it covers changed.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true # a new push to the branch replaces the running checks
+
+jobs:
+  # Which services changed? Only those images are built.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.diff.outputs.services }}
+      any: ${{ steps.diff.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE" HEAD | awk -F/ '$1=="src" && NF>2 {print $2}' | sort -u)
+          json=$(printf '%s\n' $changed | jq -R . | jq -sc '
+            map(select(length > 0))
+            | map({service: ., context: (if . == "cartservice" then "src/cartservice/src" else "src/\(.)" end)})')
+          echo "services=${json}" >> "$GITHUB_OUTPUT"
+          echo "any=$([ "$json" = "[]" ] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+          echo "Changed services: ${json}"
+
+  tests:
+    name: unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: inventoryservice
+        working-directory: src/inventoryservice
+        run: python -m unittest -v
+      - name: order-status Lambda
+        working-directory: terraform-aws/lambda/order_status
+        run: |
+          pip install --quiet pymysql==1.1.1
+          python -m unittest -v
+
+  helm:
+    name: helm chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v4.3.0
+      - name: Lint
+        run: helm lint ./helm-chart -f helm-chart/values-local.yaml
+      # Renders exactly what deploy.yml installs, with placeholder AWS names,
+      # so a template mistake fails here and not during a deployment.
+      - name: Render dev and prod
+        run: |
+          for env in dev prod; do
+            helm template boutique ./helm-chart --namespace "boutique-${env}" \
+              -f helm-chart/values-aws.yaml -f "helm-chart/values-${env}.yaml" \
+              --set images.repository=123456789012.dkr.ecr.us-east-1.amazonaws.com/boutique \
+              --set images.tag=ci \
+              --set cartDatabase.connectionString=redis.example:6379 \
+              --set inventoryService.tableName=week3-boutique-${env}-inventory \
+              --set inventoryService.queueUrl=https://sqs.us-east-1.amazonaws.com/123456789012/q \
+              --set inventoryService.eventBusName=week3-boutique-${env}-events \
+              > "rendered-${env}.yaml"
+            echo "${env}: $(grep -c '^kind:' "rendered-${env}.yaml") objects"
+            grep '^kind:' "rendered-${env}.yaml" | sort | uniq -c
+          done
+
+  build:
+    name: build ${{ matrix.service }}
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.changes.outputs.services) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      # Build only, nothing is pushed: proves the Dockerfile still works.
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha,scope=${{ matrix.service }}
+
+  ci-ok:
+    if: always()
+    needs: [changes, tests, helm, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All checks passed
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          jq -e 'all(.[]; . == "success" or . == "skipped")' <<<"$RESULTS"

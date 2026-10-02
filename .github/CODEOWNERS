@@ -1,0 +1,9 @@
+# Who reviews what. GitHub requests a review from these owners on every pull request.
+# Add teammates here (e.g. "/terraform-aws/ @ngems1 @teammate") when the team grows.
+
+*                    @ngems1
+
+# Changes that touch AWS permissions or the pipelines deserve a careful look.
+/terraform-aws/      @ngems1
+/terraform-bootstrap/ @ngems1
+/.github/workflows/  @ngems1

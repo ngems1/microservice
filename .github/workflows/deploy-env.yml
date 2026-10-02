@@ -1,0 +1,232 @@
+name: deploy-env
+
+# Deploys one environment (dev or prod). Called by deploy.yml, never run on its own.
+#
+#   1. AWS Load Balancer Controller (shared by both environments, kept up to date)
+#   2. Database migrations (a Job inside the cluster, RDS is private)
+#   3. helm upgrade --install, rolled back automatically if the pods don't become ready
+#   4. Smoke test through the ALB, rolled back to the previous release if it fails
+#
+# The job runs in the GitHub environment of the same name, so prod waits for the
+# prod reviewers to approve, and AWS only lets the deploy role in from dev/prod/main.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "dev or prod"
+        type: string
+        required: true
+      image_tag:
+        description: "Image tag to deploy (commit SHA)"
+        type: string
+        required: true
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  ENVIRONMENT: ${{ inputs.environment }}
+  TAG: ${{ inputs.image_tag }}
+  RELEASE: boutique
+  HELM_VERSION: v4.3.0
+  LBC_CHART_VERSION: 1.13.0 # AWS Load Balancer Controller v2.13.0, matches lbc_version in Terraform
+
+jobs:
+  deploy:
+    name: deploy (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.smoke.outputs.url }}
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      # Everything Terraform created for this environment, read from its state file.
+      - name: Read Terraform outputs
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          jq -e --arg env "$ENVIRONMENT" '.outputs.environments.value[$env]' state.json >/dev/null || {
+            echo "::error::No '$ENVIRONMENT' settings in the Terraform outputs. Run the infra workflow (apply) first."
+            exit 1
+          }
+          {
+            echo "CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)"
+            echo "VPC_ID=$(jq -r '.outputs.vpc_id.value' state.json)"
+            echo "NS=$(jq -r --arg env "$ENVIRONMENT" '.outputs.environments.value[$env].namespace' state.json)"
+          } >> "$GITHUB_ENV"
+
+          # Helm values with this environment's names (JSON is valid YAML).
+          jq --arg env "$ENVIRONMENT" --arg region "$AWS_REGION" '
+            .outputs as $o | $o.environments.value[$env] as $e | {
+              images:           { repository: $o.ecr_registry.value },
+              frontend:         { ingress: { allowFromCidr: ($o.vpc_cidr.value // "10.0.0.0/16") } },
+              cartDatabase:     { connectionString: $e.redis_endpoint },
+              inventoryService: {
+                awsRegion:    $region,
+                tableName:    $e.inventory_table,
+                queueUrl:     $e.inventory_queue_url,
+                eventBusName: $e.event_bus_name
+              }
+            }' state.json > values-terraform.json
+          cat values-terraform.json
+
+      - name: Connect kubectl to the cluster
+        run: |
+          aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+          kubectl get nodes -o wide
+
+      # Shared by dev and prod; its IAM role (Pod Identity) comes from Terraform.
+      # Installing it again with the same version changes nothing.
+      - name: AWS Load Balancer Controller
+        run: |
+          helm upgrade --install aws-load-balancer-controller aws-load-balancer-controller \
+            --repo https://aws.github.io/eks-charts --version "$LBC_CHART_VERSION" \
+            --namespace kube-system \
+            --set clusterName="$CLUSTER" \
+            --set region="$AWS_REGION" \
+            --set vpcId="$VPC_ID" \
+            --set serviceAccount.create=true \
+            --set serviceAccount.name=aws-load-balancer-controller \
+            --rollback-on-failure --timeout 5m
+          kubectl -n kube-system rollout status deployment/aws-load-balancer-controller --timeout=3m
+
+      - name: Namespace
+        run: kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Database migrations
+        run: |
+          set -euo pipefail
+          db() { jq -r --arg env "$ENVIRONMENT" ".outputs.environments.value[\$env].$1" state.json; }
+          secret_arn=$(db db_secret_arn)
+
+          # Credentials: from Secrets Manager into a short-lived Kubernetes Secret,
+          # through a private file (never on a command line, masked in the logs).
+          aws secretsmanager get-secret-value --secret-id "$secret_arn" --query SecretString --output text > secret.json
+          echo "::add-mask::$(jq -r .password secret.json)"
+          umask 077
+          {
+            echo "DB_HOST=$(db db_host)"
+            echo "DB_PORT=$(db db_port)"
+            echo "DB_NAME=$(db db_name)"
+            echo "DB_USER=$(jq -r .username secret.json)"
+            echo "MYSQL_PWD=$(jq -r .password secret.json)"
+          } > db.env
+          rm -f secret.json
+          kubectl -n "$NS" create secret generic db-migrate-credentials --from-env-file=db.env \
+            --dry-run=client -o yaml | kubectl apply -f -
+          rm -f db.env
+
+          # The SQL files + the RDS certificate bundle (TLS with full verification).
+          curl -sSfo rds-ca.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
+          kubectl -n "$NS" create configmap db-migrations --from-file=db/migrations --from-file=rds-ca.pem \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl -n "$NS" delete job db-migrate --ignore-not-found --wait=true
+          kubectl -n "$NS" apply -f deploy/k8s/db-migrate.yaml
+
+          # Wait for success or failure (max 10 min), then show the Job's output.
+          result=timeout
+          for _ in $(seq 1 120); do
+            if [ "$(kubectl -n "$NS" get job db-migrate -o jsonpath='{.status.succeeded}')" = "1" ]; then result=ok; break; fi
+            if [ "$(kubectl -n "$NS" get job db-migrate -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}')" = "True" ]; then result=failed; break; fi
+            sleep 5
+          done
+          kubectl -n "$NS" logs job/db-migrate --all-containers || true
+          [ "$result" = ok ] || { echo "::error::Database migration ${result}."; kubectl -n "$NS" describe job db-migrate; exit 1; }
+
+      - name: Remove the database credentials from the cluster
+        if: always()
+        run: |
+          [ -n "${NS:-}" ] && kubectl -n "$NS" delete secret db-migrate-credentials --ignore-not-found || true
+
+      - name: Remember the current release (for rollback)
+        id: before
+        run: |
+          rev=$(helm -n "$NS" history "$RELEASE" --max 1 -o json 2>/dev/null | jq -r '.[0].revision // 0' || echo 0)
+          echo "revision=${rev:-0}" >> "$GITHUB_OUTPUT"
+          echo "Current revision: ${rev:-0}"
+
+      # --rollback-on-failure (Helm 4's --atomic): if the pods aren't ready within
+      # the timeout, Helm puts the previous release back by itself.
+      - name: Deploy with Helm
+        id: helm
+        run: |
+          helm upgrade --install "$RELEASE" ./helm-chart \
+            --namespace "$NS" \
+            -f helm-chart/values-aws.yaml \
+            -f "helm-chart/values-${ENVIRONMENT}.yaml" \
+            -f values-terraform.json \
+            --set images.tag="$TAG" \
+            --rollback-on-failure --timeout 10m
+          kubectl -n "$NS" get pods -o wide
+
+      - name: Smoke test
+        id: smoke
+        run: |
+          set -euo pipefail
+          # 1) The ALB address (the controller creates it on the first deploy, ~2 min).
+          host=""
+          for _ in $(seq 1 60); do
+            host=$(kubectl -n "$NS" get ingress frontend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
+            [ -n "$host" ] && break
+            sleep 5
+          done
+          [ -n "$host" ] || { echo "::error::The ALB was not created. Check: kubectl -n kube-system logs deploy/aws-load-balancer-controller"; kubectl -n "$NS" describe ingress frontend; exit 1; }
+          echo "url=http://${host}" >> "$GITHUB_OUTPUT"
+
+          # 2) The shop answers through the ALB (DNS and target health can take a few minutes).
+          check() { curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "http://${host}$1" || true; }
+          code=""
+          for _ in $(seq 1 60); do
+            code=$(check /)
+            [ "$code" = 200 ] && break
+            sleep 10
+          done
+          [ "$code" = 200 ] || { echo "::error::http://${host}/ answered ${code:-nothing}"; exit 1; }
+          for path in /_healthz /product/OLJCESPC7Z /cart; do
+            c=$(check "$path"); echo "GET ${path} -> ${c}"
+            [ "$c" = 200 ] || { echo "::error::GET ${path} -> ${c}"; exit 1; }
+          done
+
+          # 3) inventoryservice reads DynamoDB (proves Pod Identity works).
+          kubectl -n "$NS" port-forward svc/inventoryservice 18080:80 >/dev/null 2>&1 &
+          pf=$!
+          sleep 5
+          stock=$(curl -sS --max-time 10 http://127.0.0.1:18080/stock || true)
+          kill "$pf" || true
+          echo "inventory /stock: ${stock}"
+          jq -e 'length > 0' <<<"$stock" >/dev/null || { echo "::error::inventoryservice /stock returned no stock"; exit 1; }
+
+      # Pods were ready but the shop doesn't work: put the previous release back.
+      - name: Roll back
+        if: failure() && steps.helm.outcome == 'success' && steps.before.outputs.revision != '0'
+        run: |
+          echo "::warning::Smoke test failed, rolling back ${RELEASE} to revision ${{ steps.before.outputs.revision }}."
+          helm -n "$NS" rollback "$RELEASE" "${{ steps.before.outputs.revision }}" --wait --timeout 10m
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### ${ENVIRONMENT}: \`${TAG}\`"
+            echo
+            echo "- Shop: ${{ steps.smoke.outputs.url || 'not available' }}"
+            echo "- Namespace: \`${NS:-?}\`"
+            echo
+            echo '```'
+            helm -n "${NS:-x}" history "$RELEASE" --max 5 2>/dev/null || echo "no release yet"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

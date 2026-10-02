@@ -1,0 +1,40 @@
+# EKS values shared by dev and prod.
+#
+# The deploy workflow stacks three files, the last one wins:
+#   values-aws.yaml            this file: the AWS setup common to both environments
+#   values-dev.yaml / -prod    what differs between the environments
+#   (generated)                names Terraform created for that environment: ECR registry,
+#                              Redis endpoint, DynamoDB table, queue URL, event bus, VPC range
+# and the image tag (the commit SHA) with --set images.tag=...
+
+serviceAccounts:
+  # One service account per service. Terraform links 4 of them to IAM roles with
+  # EKS Pod Identity (checkoutservice, productcatalogservice, inventoryservice,
+  # emailservice); the others get no AWS access at all.
+  create: true
+
+networkPolicies:
+  # A deny-all policy plus one policy per service: each service only accepts
+  # traffic from the services that call it (enforced by the VPC CNI).
+  create: true
+
+seccompProfile:
+  enable: true
+  type: RuntimeDefault
+
+frontend:
+  externalService: false   # no classic LoadBalancer Service...
+  platform: aws
+  ingress:
+    enabled: true          # ...an ALB from the Ingress instead (templates/ingress.yaml)
+
+cartDatabase:
+  type: redis
+  inClusterRedis:
+    create: false          # ElastiCache Redis (address set by the workflow)
+
+inventoryService:
+  create: true             # table, queue and bus names set by the workflow
+
+loadGenerator:
+  create: false            # set true in a values file to simulate shoppers

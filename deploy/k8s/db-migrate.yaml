@@ -1,0 +1,101 @@
+# Applies db/migrations/*.sql to the environment's RDS MySQL.
+#
+# Runs inside the cluster because RDS is in private subnets (GitHub runners can't
+# reach it). The deploy workflow creates, just before this Job:
+#   ConfigMap db-migrations            the .sql files + the RDS CA certificate
+#   Secret    db-migrate-credentials   host, port, database, user, password
+#                                      (read from Secrets Manager, deleted after the run)
+# The SQL files are safe to re-run (CREATE TABLE IF NOT EXISTS, INSERT IGNORE).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-migrate
+spec:
+  # The namespace has a deny-all policy: let this Job reach DNS and MySQL only.
+  podSelector:
+    matchLabels:
+      app: db-migrate
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+  - ports:
+    - port: 53
+      protocol: UDP
+    - port: 53
+      protocol: TCP
+  - ports:
+    - port: 3306
+      protocol: TCP
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+  labels:
+    app: db-migrate
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: db-migrate
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999   # "mysql" user of the image
+        runAsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: migrate
+        image: public.ecr.aws/docker/library/mysql:8.4
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          set -euo pipefail
+          # TLS with certificate and host name checks against the RDS CA bundle.
+          run() {
+            mysql --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" \
+              --ssl-mode=VERIFY_IDENTITY --ssl-ca=/migrations/rds-ca.pem "$@"
+          }
+          for f in $(printf '%s\n' /migrations/*.sql | sort -V); do
+            echo "Applying $(basename "$f")"
+            run "$DB_NAME" < "$f"
+          done
+          echo "Tables:   $(run -N "$DB_NAME" -e 'SHOW TABLES' | tr '\n' ' ')"
+          echo "Products: $(run -N "$DB_NAME" -e 'SELECT COUNT(*) FROM products')"
+        envFrom:
+        - secretRef:
+            name: db-migrate-credentials   # DB_HOST, DB_PORT, DB_NAME, DB_USER, MYSQL_PWD
+        env:
+        - name: HOME
+          value: /tmp
+        volumeMounts:
+        - name: migrations
+          mountPath: /migrations
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+      volumes:
+      - name: migrations
+        configMap:
+          name: db-migrations
+      - name: tmp
+        emptyDir: {}

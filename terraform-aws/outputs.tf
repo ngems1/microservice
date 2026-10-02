@@ -11,6 +11,11 @@ output "vpc_id" {
   value       = module.vpc.vpc_id
 }
 
+output "vpc_cidr" {
+  description = "Allowed into the frontend pods (the ALB sends traffic from inside the VPC)."
+  value       = module.vpc.vpc_cidr_block
+}
+
 output "ecr_registry" {
   description = "Helm value images.repository (registry + prefix)."
   value       = "${split("/", aws_ecr_repository.svc["frontend"].repository_url)[0]}/${var.ecr_prefix}"

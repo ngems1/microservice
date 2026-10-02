@@ -99,7 +99,7 @@ emailService:
 
 inventoryService:
   # Week 3 addition. Off by default so the stock Online Boutique install still works;
-  # turned on in the dev/prod values files with the AWS names from Terraform.
+  # turned on in values-aws.yaml; the deploy workflow adds the AWS names from Terraform.
   create: false
   name: inventoryservice
   replicas: 1
@@ -126,6 +126,15 @@ frontend:
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
   platform: local
   singleSharedSession: false
+  # AWS: an Ingress for the AWS Load Balancer Controller, which creates one
+  # internet-facing ALB per environment (templates/ingress.yaml).
+  ingress:
+    enabled: false
+    className: alb
+    # The ALB sends traffic and health checks straight to the pod IPs (target-type ip),
+    # so the frontend NetworkPolicy lets in this range: the VPC.
+    allowFromCidr: 10.0.0.0/16
+    annotations: {}
   virtualService:
     create: false
     hosts:

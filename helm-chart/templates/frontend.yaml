@@ -155,6 +155,14 @@ spec:
   ingress:
   {{- if .Values.frontend.externalService }}
   - {}
+  {{- else if .Values.frontend.ingress.enabled }}
+  # ALB (ip targets): traffic and health checks come from inside the VPC.
+  - from:
+    - ipBlock:
+        cidr: {{ .Values.frontend.ingress.allowFromCidr }}
+    ports:
+     - port: 8080
+       protocol: TCP
   {{- else }}
   - from:
     - podSelector:

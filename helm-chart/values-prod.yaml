@@ -1,0 +1,8 @@
+# prod (namespace boutique-prod): same images as dev, deployed after a reviewer
+# approves the "prod" environment in GitHub.
+
+inventoryService:
+  # Two consumers on the inventory queue. Safe because reservations are
+  # idempotent (DynamoDB transaction keyed by order ID).
+  replicas: 2
+  stockOverrides: ""   # normal stock for every product

@@ -1,0 +1,54 @@
+name: isolation-test
+
+# Proves dev can't reach prod inside the shared cluster (network + IAM).
+# Runs at the end of every deploy, and on demand: Actions > isolation-test > Run workflow.
+# The checks themselves are in deploy/tests/isolation-test.sh.
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Read Terraform outputs
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          tf_env() { jq -r --arg e "$1" ".outputs.environments.value[\$e].$2" state.json; }
+          {
+            echo "CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)"
+            echo "DEV_NS=$(tf_env dev namespace)"
+            echo "PROD_NS=$(tf_env prod namespace)"
+            echo "DEV_TABLE=$(tf_env dev inventory_table)"
+            echo "PROD_TABLE=$(tf_env prod inventory_table)"
+            echo "PROD_REDIS=$(tf_env prod redis_endpoint)"
+          } >> "$GITHUB_ENV"
+
+      - name: Connect kubectl to the cluster
+        run: aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+
+      - name: Both environments are running
+        run: |
+          for ns in "$DEV_NS" "$PROD_NS"; do
+            kubectl -n "$ns" rollout status deploy/inventoryservice --timeout=2m
+          done
+
+      - name: Isolation checks
+        run: bash deploy/tests/isolation-test.sh

@@ -1,0 +1,219 @@
+name: deploy
+
+# Builds the 12 service images, pushes them to ECR and deploys them to EKS.
+#
+#   push to main  -> build + scan -> dev (automatic) -> prod (after a reviewer approves)
+#   manual run    -> the same, or redeploy an image tag that already exists
+#                    (rollback: give the commit SHA of a previous good build)
+#
+# The same images go to dev and prod: prod gets exactly what was tested in dev.
+# Each environment's steps are in deploy-env.yml.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "helm-chart/**"
+      - "db/**"
+      - "deploy/**"
+      - ".github/workflows/deploy.yml"
+      - ".github/workflows/deploy-env.yml"
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Redeploy this existing image tag (12-character commit SHA) instead of building. Empty = build this commit."
+        type: string
+        default: ""
+      target:
+        description: "Where to deploy"
+        type: choice
+        options: [dev-then-prod, dev-only]
+        default: dev-then-prod
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  # Picks the image tag and checks the AWS side exists.
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      build: ${{ steps.tag.outputs.build }}
+      registry: ${{ steps.tf.outputs.registry }}
+    steps:
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Terraform's outputs are read straight from its state file in S3 (read-only,
+      # no terraform init needed). Run the infra workflow first.
+      - name: Read Terraform outputs
+        id: tf
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          registry=$(jq -r '.outputs.ecr_registry.value // empty' state.json)
+          if [ -z "$registry" ]; then
+            echo "::error::No Terraform outputs found. Run the infra workflow (apply) first."
+            exit 1
+          fi
+          echo "registry=${registry}" >> "$GITHUB_OUTPUT"
+
+      - name: Choose the image tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.image_tag }}
+          REGISTRY: ${{ steps.tf.outputs.registry }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            # Rollback / redeploy: every image must already exist with that tag.
+            missing=0
+            for svc in adservice cartservice checkoutservice currencyservice emailservice frontend \
+                       inventoryservice loadgenerator paymentservice productcatalogservice \
+                       recommendationservice shippingservice; do
+              aws ecr describe-images --repository-name "${REGISTRY#*/}/${svc}" \
+                --image-ids imageTag="$INPUT_TAG" >/dev/null 2>&1 || { echo "::error::${svc}:${INPUT_TAG} not found in ECR"; missing=1; }
+            done
+            [ "$missing" = 0 ] || exit 1
+            echo "tag=${INPUT_TAG}" >> "$GITHUB_OUTPUT"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            echo "Redeploying existing tag ${INPUT_TAG} (no build)."
+          else
+            echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # One job per service, in parallel.
+  build:
+    needs: setup
+    if: needs.setup.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { service: adservice,             context: src/adservice }
+          - { service: cartservice,           context: src/cartservice/src }
+          - { service: checkoutservice,       context: src/checkoutservice }
+          - { service: currencyservice,       context: src/currencyservice }
+          - { service: emailservice,          context: src/emailservice }
+          - { service: frontend,              context: src/frontend }
+          - { service: inventoryservice,      context: src/inventoryservice }
+          - { service: loadgenerator,         context: src/loadgenerator }
+          - { service: paymentservice,        context: src/paymentservice }
+          - { service: productcatalogservice, context: src/productcatalogservice }
+          - { service: recommendationservice, context: src/recommendationservice }
+          - { service: shippingservice,       context: src/shippingservice }
+    env:
+      IMAGE: ${{ needs.setup.outputs.registry }}/${{ matrix.service }}:${{ needs.setup.outputs.tag }}
+      REPO: ${{ matrix.service }}
+      TAG: ${{ needs.setup.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Tags are immutable in ECR: if this commit was already built (a re-run), reuse it.
+      - name: Already built?
+        id: exists
+        env:
+          REGISTRY: ${{ needs.setup.outputs.registry }}
+        run: |
+          if aws ecr describe-images --repository-name "${REGISTRY#*/}/${REPO}" \
+               --image-ids imageTag="$TAG" >/dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "${IMAGE} already exists, skipping the build."
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+        if: steps.exists.outputs.found == 'false'
+
+      - name: Build and push
+        if: steps.exists.outputs.found == 'false'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          push: true
+          provenance: false # one plain image manifest, which ECR scanning reads directly
+          tags: ${{ env.IMAGE }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      # Security gate: ECR scans every pushed image (scan on push, set in Terraform).
+      # A CRITICAL finding stops the deployment before anything reaches the cluster.
+      # (ECR's scanner is used instead of a third-party scanner action, so no extra
+      # code runs with AWS credentials. See the Trivy supply-chain compromise, March 2026.)
+      - name: Vulnerability scan gate
+        env:
+          REGISTRY: ${{ needs.setup.outputs.registry }}
+          BLOCKING: ${{ vars.SCAN_BLOCKING || 'true' }}
+        run: |
+          repo="${REGISTRY#*/}/${REPO}"
+          aws ecr wait image-scan-complete --repository-name "$repo" --image-id imageTag="$TAG" || true
+          result=$(aws ecr describe-image-scan-findings --repository-name "$repo" --image-id imageTag="$TAG" --output json || echo '{}')
+          status=$(jq -r '.imageScanStatus.status // "UNKNOWN"' <<<"$result")
+          counts=$(jq -c '.imageScanFindings.findingSeverityCounts // {}' <<<"$result")
+          critical=$(jq -r '.CRITICAL // 0' <<<"$counts")
+          high=$(jq -r '.HIGH // 0' <<<"$counts")
+          {
+            echo "| Image | Scan | Critical | High |"
+            echo "|---|---|---|---|"
+            echo "| ${REPO}:${TAG} | ${status} | ${critical} | ${high} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Scan ${status}: ${counts}"
+          if [ "$status" != "COMPLETE" ]; then
+            echo "::warning::${REPO}: scan status ${status} ($(jq -r '.imageScanStatus.description // ""' <<<"$result"))"
+          elif [ "$critical" -gt 0 ]; then
+            jq -r '.imageScanFindings.findings[] | select(.severity=="CRITICAL") | "  \(.name)  \(.uri // "")"' <<<"$result" | head -20
+            if [ "$BLOCKING" = "true" ]; then
+              echo "::error::${REPO}: ${critical} CRITICAL vulnerabilities. Update the base image or dependencies (or set the repository variable SCAN_BLOCKING=false to only report)."
+              exit 1
+            fi
+            echo "::warning::${REPO}: ${critical} CRITICAL vulnerabilities (SCAN_BLOCKING=false, not blocking)."
+          fi
+
+  deploy-dev:
+    needs: [setup, build]
+    # Runs after a successful build, or straight away when redeploying an existing tag.
+    if: always() && needs.setup.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped')
+    uses: ./.github/workflows/deploy-env.yml
+    with:
+      environment: dev
+      image_tag: ${{ needs.setup.outputs.tag }}
+
+  deploy-prod:
+    needs: [setup, deploy-dev]
+    if: always() && needs.deploy-dev.result == 'success' && inputs.target != 'dev-only'
+    uses: ./.github/workflows/deploy-env.yml
+    with:
+      environment: prod
+      image_tag: ${{ needs.setup.outputs.tag }}
+
+  # Proves dev can't reach prod (network + IAM), once both are on the new version.
+  isolation-test:
+    needs: deploy-prod
+    if: always() && needs.deploy-prod.result == 'success'
+    uses: ./.github/workflows/isolation-test.yml
