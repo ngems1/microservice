@@ -37,6 +37,19 @@ module "eks" {
     # CloudWatch Container Insights: node/pod metrics and container logs.
     amazon-cloudwatch-observability = {
       most_recent = true
+      # Container Insights (node/pod metrics, container logs) stays on. Application
+      # Signals auto-monitor is turned off: by default it injects an OpenTelemetry
+      # agent into every pod, which made the JVM of adservice too slow to start
+      # (killed by its liveness probe) and is billed per request/span.
+      configuration_values = jsonencode({
+        manager = {
+          applicationSignals = {
+            autoMonitor = {
+              monitorAllServices = false
+            }
+          }
+        }
+      })
     }
   }
 

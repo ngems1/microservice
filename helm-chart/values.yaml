@@ -50,8 +50,8 @@ adService:
       cpu: 200m
       memory: 180Mi
     limits:
-      cpu: 300m
-      memory: 300Mi
+      cpu: 1000m      # Week 3: was 300m, too little for the JVM to start in time
+      memory: 512Mi   # Week 3: was 300Mi (Java 21 runtime)
 
 cartService:
   create: true

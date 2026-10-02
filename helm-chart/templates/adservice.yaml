@@ -59,13 +59,19 @@ spec:
           value: "9555"
         resources:
           {{- toYaml .Values.adService.resources | nindent 10 }}
+        # Week 3: the JVM can take over a minute to start on a small CPU share.
+        # The startup probe gives it up to 3 minutes; liveness/readiness only
+        # begin once it has answered, so a slow start is no longer killed.
+        startupProbe:
+          periodSeconds: 5
+          failureThreshold: 36
+          grpc:
+            port: 9555
         readinessProbe:
-          initialDelaySeconds: 20
           periodSeconds: 15
           grpc:
             port: 9555
         livenessProbe:
-          initialDelaySeconds: 20
           periodSeconds: 15
           grpc:
             port: 9555

@@ -14,7 +14,7 @@ kubectl -n "$ns" get ingress,svc 2>&1
 echo
 echo "=== ${ns}: recent events ==="
 kubectl -n "$ns" get events --sort-by=.lastTimestamp 2>&1 | tail -40
-for pod in $(kubectl -n "$ns" get pods --no-headers 2>/dev/null | awk '{split($2, r, "/")} r[1] != r[2] || $3 != "Running" {print $1}'); do
+for pod in $(kubectl -n "$ns" get pods --no-headers 2>/dev/null | awk '$3 != "Completed" {split($2, r, "/")} $3 != "Completed" && (r[1] != r[2] || $3 != "Running") {print $1}'); do
   echo
   echo "=== ${pod}: describe (end) ==="
   kubectl -n "$ns" describe pod "$pod" 2>&1 | tail -25
