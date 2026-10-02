@@ -62,10 +62,14 @@ jobs:
 
       # The order-status Lambda talks to MySQL: bundle pymysql and the RDS CA
       # certificate next to its code, then run its unit tests.
+      # No .pyc files (--no-compile, PYTHONDONTWRITEBYTECODE): they contain timestamps,
+      # which would change the zip on every run and redeploy the Lambda for nothing.
       - name: Lambda dependencies + tests
         working-directory: terraform-aws/lambda/order_status
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
         run: |
-          pip install --quiet --target . pymysql==1.1.1
+          pip install --quiet --no-compile --target . pymysql==1.1.1
           curl -sSfo global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
           python -m unittest -v
 
