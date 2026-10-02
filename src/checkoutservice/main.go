@@ -79,6 +79,9 @@ type checkoutService struct {
 
 	paymentSvcAddr string
 	paymentSvcConn *grpc.ClientConn
+
+	// Week 3: order persistence + OrderCreated (orders.go). nil = disabled.
+	orders *orderStore
 }
 
 func main() {
@@ -117,6 +120,17 @@ func main() {
 	mustConnGRPC(ctx, &svc.currencySvcConn, svc.currencySvcAddr)
 	mustConnGRPC(ctx, &svc.emailSvcConn, svc.emailSvcAddr)
 	mustConnGRPC(ctx, &svc.paymentSvcConn, svc.paymentSvcAddr)
+
+	orders, err := newOrderStore(ctx)
+	if err != nil {
+		log.Fatalf("order store: %v", err)
+	}
+	if orders == nil {
+		log.Info("order persistence and events disabled (EVENT_BUS_NAME / DB_SECRET_ARN not set)")
+	} else {
+		log.Info("order persistence (RDS MySQL) and events (EventBridge) enabled")
+	}
+	svc.orders = orders
 
 	log.Infof("service config: %+v", svc)
 
@@ -265,6 +279,15 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		ShippingCost:       prep.shippingCostLocalized,
 		ShippingAddress:    req.Address,
 		Items:              prep.orderItems,
+	}
+
+	// Week 3: save the order (PENDING) and publish OrderCreated. The card is already
+	// charged, so a failure here is logged (and visible in CloudWatch) instead of
+	// failing the customer's checkout.
+	if cs.orders != nil {
+		if err := cs.orders.record(ctx, orderResult, req.Email, &total); err != nil {
+			log.WithField("orderId", orderResult.OrderId).Errorf("order not recorded: %v", err)
+		}
 	}
 
 	if err := cs.sendOrderConfirmation(ctx, req.Email, orderResult); err != nil {

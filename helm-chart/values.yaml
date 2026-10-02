@@ -67,6 +67,15 @@ cartService:
 checkoutService:
   create: true
   name: checkoutservice
+  # Week 3: order persistence + OrderCreated. Off while eventBusName is empty
+  # (local runs); the deploy workflow fills these from Terraform on AWS.
+  orders:
+    awsRegion: us-east-1
+    eventBusName: ""
+    dbHost: ""
+    dbPort: 3306
+    dbName: ""
+    dbSecretArn: ""
   resources:
     requests:
       cpu: 100m

@@ -74,6 +74,24 @@ spec:
           value: "{{ .Values.currencyService.name }}:7000"
         - name: CART_SERVICE_ADDR
           value: "{{ .Values.cartService.name }}:7070"
+        {{- with .Values.checkoutService.orders }}
+        {{- if .eventBusName }}
+        # Week 3: save orders in RDS MySQL and publish OrderCreated (orders.go).
+        # AWS access through EKS Pod Identity (service account "checkoutservice").
+        - name: AWS_REGION
+          value: {{ .awsRegion | quote }}
+        - name: EVENT_BUS_NAME
+          value: {{ .eventBusName | quote }}
+        - name: DB_HOST
+          value: {{ required "checkoutService.orders.dbHost is required" .dbHost | quote }}
+        - name: DB_PORT
+          value: {{ .dbPort | quote }}
+        - name: DB_NAME
+          value: {{ required "checkoutService.orders.dbName is required" .dbName | quote }}
+        - name: DB_SECRET_ARN
+          value: {{ required "checkoutService.orders.dbSecretArn is required" .dbSecretArn | quote }}
+        {{- end }}
+        {{- end }}
         {{- if .Values.opentelemetryCollector.create }}
         - name: COLLECTOR_SERVICE_ADDR
           value: "{{ .Values.opentelemetryCollector.name }}:4317"

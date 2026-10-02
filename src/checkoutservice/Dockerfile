@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.21.0-alpine@sha256:dd8888bb7f1b0b05e1e625aa29483f50f38a9b64073a4db00b04076cec52b71c as builder
+# Week 3: Go 1.24 (the AWS SDK for Go v2 needs a recent Go)
+FROM golang:1.24-alpine AS builder
 RUN apk add --no-cache ca-certificates git
 RUN apk add build-base
 WORKDIR /src
@@ -26,10 +27,14 @@ COPY . .
 # Skaffold passes in debug-oriented compiler flags
 ARG SKAFFOLD_GO_GCFLAGS
 RUN go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -o /checkoutservice .
+# Week 3: unit tests run in every image build (orders_test.go, money)
+RUN go test -vet=off ./...
 
 # Week 3: runtime base image updated (the 2023 image had CRITICAL CVEs, blocked by the ECR scan gate)
 FROM alpine:3.22
-RUN apk add --no-cache ca-certificates
+RUN apk upgrade --no-cache && apk add --no-cache ca-certificates
+# Week 3: RDS certificate bundle, to verify the MySQL server's TLS certificate
+ADD --chmod=644 https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem /etc/ssl/rds/global-bundle.pem
 
 WORKDIR /src
 COPY --from=builder /checkoutservice /src/checkoutservice
