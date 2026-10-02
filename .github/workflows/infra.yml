@@ -33,8 +33,6 @@ env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
   TF_VAR_region: ${{ vars.AWS_REGION || 'us-east-1' }}
   TF_VAR_admin_principal_arn: ${{ vars.ADMIN_PRINCIPAL_ARN }}
-  TF_VAR_slack_team_id: ${{ vars.SLACK_TEAM_ID }}
-  TF_VAR_slack_channel_id: ${{ vars.SLACK_CHANNEL_ID }}
   TF_IN_AUTOMATION: "true"
 
 jobs:
@@ -71,6 +69,14 @@ jobs:
         run: |
           pip install --quiet --no-compile --target . pymysql==1.1.1
           curl -sSfo global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
+          python -m unittest -v
+
+      - name: Slack alerts Lambda tests
+        working-directory: terraform-aws/lambda/slack_alerts
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          pip install --quiet boto3
           python -m unittest -v
 
       - uses: hashicorp/setup-terraform@v3
@@ -114,6 +120,29 @@ jobs:
       - name: Show outputs
         if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.action == 'apply'
         run: terraform output
+
+      # CloudWatch alarms reach Slack through the slack-alerts Lambda, which reads the
+      # webhook URL from Secrets Manager. Written here (not by Terraform) so the URL
+      # never lands in the Terraform state. Only written when it changed.
+      - name: Store the Slack webhook for alarms
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.action == 'apply'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "::notice::No SLACK_WEBHOOK_URL secret: alarms are logged but not sent to Slack (docs/week3/SLACK.md)."
+            exit 0
+          fi
+          secret_arn=$(terraform output -raw slack_webhook_secret_arn)
+          current=$(aws secretsmanager get-secret-value --secret-id "$secret_arn" \
+                      --query SecretString --output text 2>/dev/null || true)
+          if [ "$current" = "$SLACK_WEBHOOK_URL" ]; then
+            echo "Slack webhook already stored."
+          else
+            aws secretsmanager put-secret-value --secret-id "$secret_arn" \
+              --secret-string "$SLACK_WEBHOOK_URL" >/dev/null
+            echo "Slack webhook stored: CloudWatch alarms will be posted to Slack."
+          fi
 
       # --- teardown ---------------------------------------------------------
       # The ALB is created by Kubernetes, not Terraform. Delete it first,

@@ -1,60 +1,103 @@
-# CloudWatch alarms -> SNS (one topic per environment) -> Slack, through
-# Amazon Q Developer in chat applications (formerly AWS Chatbot).
+# CloudWatch alarms -> SNS (one topic per environment) -> slack-alerts Lambda -> Slack.
 #
-# Off until you authorize your Slack workspace once in the AWS console and set the
-# GitHub variables SLACK_TEAM_ID and SLACK_CHANNEL_ID (docs/week3/SLACK.md).
+# The Lambda posts to the same Slack incoming webhook as the pipeline messages.
+# The webhook URL lives in a Secrets Manager secret: Terraform creates the empty
+# secret, and the infra workflow writes the value from the GitHub secret
+# SLACK_WEBHOOK_URL after each apply. So the URL is never in code, in the Terraform
+# state, or in the Lambda's settings. No value stored = alarms are only logged.
 #
-# The chat service's API isn't available in us-east-1, so its configuration is
-# created in us-east-2 (Ohio). It still receives the alarms from us-east-1.
+# (Amazon Q Developer in chat applications, the AWS-managed Slack integration,
+# isn't used: it needs chatbot:* console permissions this account doesn't grant.)
 
-locals {
-  slack_enabled = var.slack_team_id != "" && var.slack_channel_id != ""
+resource "aws_secretsmanager_secret" "slack_webhook" {
+  name        = "${var.project}/slack-webhook-url"
+  description = "Slack incoming webhook URL for CloudWatch alarms. Value written by the infra workflow."
+
+  # Deleted at once on destroy, so the next apply can recreate the same name.
+  recovery_window_in_days = 0
 }
 
-provider "aws" {
-  alias  = "chat"
-  region = "us-east-2"
-
-  default_tags {
-    tags = {
-      Project   = var.project
-      ManagedBy = "terraform"
-    }
-  }
+data "archive_file" "slack_alerts" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda/slack_alerts"
+  output_path = "${path.module}/.build/slack_alerts.zip"
+  excludes    = ["test_app.py", "__pycache__"]
 }
 
-# What the Slack integration may do in AWS: read CloudWatch, to show alarm details
-# and graphs. Nothing else (no commands can change resources from Slack).
-resource "aws_iam_role" "slack" {
-  count = local.slack_enabled ? 1 : 0
-
+resource "aws_iam_role" "slack_alerts" {
   name = "${var.project}-slack-alerts"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect    = "Allow"
-      Principal = { Service = "chatbot.amazonaws.com" }
+      Principal = { Service = "lambda.amazonaws.com" }
       Action    = "sts:AssumeRole"
     }]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "slack" {
-  count = local.slack_enabled ? 1 : 0
-
-  role       = aws_iam_role.slack[0].name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+# Least privilege: write its own logs, read this one secret. Nothing else.
+resource "aws_iam_role_policy" "slack_alerts" {
+  name = "slack-alerts"
+  role = aws_iam_role.slack_alerts.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "${aws_cloudwatch_log_group.slack_alerts.arn}:*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = "secretsmanager:GetSecretValue"
+        Resource = aws_secretsmanager_secret.slack_webhook.arn
+      },
+    ]
+  })
 }
 
-resource "aws_chatbot_slack_channel_configuration" "alerts" {
-  count    = local.slack_enabled ? 1 : 0
-  provider = aws.chat
+resource "aws_cloudwatch_log_group" "slack_alerts" {
+  name              = "/aws/lambda/${var.project}-slack-alerts"
+  retention_in_days = 14
+}
 
-  configuration_name    = "${var.project}-alerts"
-  iam_role_arn          = aws_iam_role.slack[0].arn
-  slack_team_id         = var.slack_team_id
-  slack_channel_id      = var.slack_channel_id
-  sns_topic_arns        = [for env in module.env : env.settings.alerts_topic_arn]
-  guardrail_policy_arns = ["arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"]
-  logging_level         = "ERROR"
+resource "aws_lambda_function" "slack_alerts" {
+  function_name    = "${var.project}-slack-alerts"
+  role             = aws_iam_role.slack_alerts.arn
+  runtime          = "python3.12"
+  handler          = "app.handler"
+  filename         = data.archive_file.slack_alerts.output_path
+  source_code_hash = data.archive_file.slack_alerts.output_base64sha256
+  timeout          = 15
+  memory_size      = 128
+
+  environment {
+    variables = {
+      SLACK_SECRET_ARN = aws_secretsmanager_secret.slack_webhook.arn
+    }
+  }
+
+  depends_on = [aws_cloudwatch_log_group.slack_alerts, aws_iam_role_policy.slack_alerts]
+}
+
+# Each environment's alarm topic (dev, prod) invokes the Lambda.
+resource "aws_lambda_permission" "slack_alerts" {
+  for_each = module.env
+
+  statement_id  = "sns-${each.key}"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.slack_alerts.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = each.value.settings.alerts_topic_arn
+}
+
+resource "aws_sns_topic_subscription" "slack_alerts" {
+  for_each = module.env
+
+  topic_arn = each.value.settings.alerts_topic_arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.slack_alerts.arn
+
+  depends_on = [aws_lambda_permission.slack_alerts]
 }
