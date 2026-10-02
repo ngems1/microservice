@@ -80,6 +80,14 @@ jobs:
               images:           { repository: $o.ecr_registry.value },
               frontend:         { ingress: { allowFromCidr: ($o.vpc_cidr.value // "10.0.0.0/16") } },
               cartDatabase:     { connectionString: $e.redis_endpoint },
+              checkoutService:  { orders: {
+                awsRegion:    $region,
+                eventBusName: $e.event_bus_name,
+                dbHost:       $e.db_host,
+                dbPort:       $e.db_port,
+                dbName:       $e.db_name,
+                dbSecretArn:  $e.db_secret_arn
+              } },
               inventoryService: {
                 awsRegion:    $region,
                 tableName:    $e.inventory_table,
