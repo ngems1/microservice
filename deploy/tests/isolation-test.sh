@@ -111,9 +111,10 @@ echo "== IAM: dev inventoryservice (Pod Identity) =="
 dynamo() {
   local out
   out=$(kubectl -n "$DEV_NS" exec deploy/inventoryservice -c server -- python -c "
-import boto3
+import boto3, os
 try:
-    boto3.client('dynamodb').scan(TableName='$1', Limit=1)
+    # Same region setting as the service itself (its AWS_REGION variable)
+    boto3.client('dynamodb', region_name=os.environ.get('AWS_REGION')).scan(TableName='$1', Limit=1)
     print('OK')
 except Exception as e:
     code = getattr(e, 'response', {}).get('Error', {}).get('Code', '') or type(e).__name__
