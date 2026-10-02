@@ -32,6 +32,11 @@ RUN npm install --only=production
 
 FROM base
 
+# Week 3: install the latest Alpine security fixes (the scan gate found CRITICAL CVEs
+# in the Node image's system packages), and drop npm/yarn, unused at runtime.
+RUN apk upgrade --no-cache \
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /opt/yarn-* /usr/local/bin/yarn /usr/local/bin/yarnpkg
+
 WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/node_modules ./node_modules
