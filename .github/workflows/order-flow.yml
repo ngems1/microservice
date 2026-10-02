@@ -1,0 +1,92 @@
+name: order-flow
+
+# Follow orders through the event flow of one environment (read-only):
+# MySQL order status, DynamoDB reservations and stock, SQS queues, Lambda logs.
+# Place an order in the shop, wait a few seconds, then:
+# Actions > order-flow > Run workflow. Results are on the run's Summary page.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment"
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  order-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Read Terraform outputs
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          e() { jq -r --arg env "$ENVIRONMENT" ".outputs.environments.value[\$env].$1" state.json; }
+          {
+            echo "CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)"
+            echo "NS=$(e namespace)"
+            echo "DB_HOST=$(e db_host)"
+            echo "DB_PORT=$(e db_port)"
+            echo "DB_NAME=$(e db_name)"
+            echo "DB_SECRET_ARN=$(e db_secret_arn)"
+            echo "INVENTORY_TABLE=$(e inventory_table)"
+            echo "LAMBDA_NAME=$(e order_status_lambda)"
+            echo "QUEUES_JSON=$(jq -c --arg env "$ENVIRONMENT" '.outputs.environments.value[$env] as $s
+              | [$s.inventory_queue_url, $s.order_status_queue_url, $s.notification_queue_url] + [$s.dlq_urls[]]' state.json)"
+          } >> "$GITHUB_ENV"
+          rm -f state.json
+
+      - name: Connect kubectl to the cluster
+        run: aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+
+      # Database credentials: Secrets Manager -> short-lived Kubernetes Secret, through a
+      # private file (masked, never on a command line, never in the Summary).
+      - name: Database credentials for the query pod
+        run: |
+          aws secretsmanager get-secret-value --secret-id "$DB_SECRET_ARN" --query SecretString --output text > secret.json
+          echo "::add-mask::$(jq -r .password secret.json)"
+          umask 077
+          {
+            echo "DB_HOST=${DB_HOST}"
+            echo "DB_PORT=${DB_PORT}"
+            echo "DB_NAME=${DB_NAME}"
+            echo "DB_USER=$(jq -r .username secret.json)"
+            echo "MYSQL_PWD=$(jq -r .password secret.json)"
+          } > db.env
+          rm -f secret.json
+          kubectl -n "$NS" create secret generic order-flow-query --from-env-file=db.env \
+            --dry-run=client -o yaml | kubectl apply -f -
+          rm -f db.env
+
+      - name: Order flow
+        run: |
+          {
+            echo "### Order flow: ${{ inputs.environment }}"
+            echo '```'
+            bash deploy/order-flow.sh
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean up
+        if: always()
+        run: |
+          kubectl -n "$NS" delete secret order-flow-query --ignore-not-found || true
+          kubectl -n "$NS" delete job order-flow-query --ignore-not-found --wait=false || true
