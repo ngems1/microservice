@@ -21,7 +21,8 @@ COPY . .
 RUN dotnet publish cartservice.csproj -p:PublishSingleFile=true -r linux-musl-x64 --self-contained true -p:PublishTrimmed=True -p:TrimMode=Link -c release -o /cartservice --no-restore
 
 # https://mcr.microsoft.com/v2/dotnet/runtime-deps/tags/list
-FROM mcr.microsoft.com/dotnet/runtime-deps:7.0.10-alpine3.18-amd64@sha256:0a0082af70195406fab26bcdbc9313e27a5869082bcf7d16d84e1b2c0eb1b624
+# Week 3: runtime base image updated (the 2023 image had CRITICAL CVEs, blocked by the ECR scan gate)
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine
 
 WORKDIR /app
 COPY --from=builder /cartservice .
