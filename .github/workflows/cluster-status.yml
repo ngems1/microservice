@@ -1,0 +1,57 @@
+name: cluster-status
+
+# Look inside the cluster without kubectl on your laptop or CloudShell:
+# Actions > cluster-status > Run workflow. Read-only (get, describe, logs).
+# Results are in the log and on the run's Summary page.
+
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: "Namespace to inspect"
+        type: choice
+        options: [boutique-dev, boutique-prod, kube-system, amazon-cloudwatch]
+        default: boutique-dev
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Connect kubectl to the cluster
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          aws eks update-kubeconfig --name "$(jq -r '.outputs.cluster_name.value' state.json)" --region "$AWS_REGION"
+          rm -f state.json
+
+      - name: Nodes
+        run: kubectl get nodes -o wide && kubectl top nodes 2>/dev/null || true
+
+      - name: Helm releases
+        run: helm list -A 2>/dev/null || true
+
+      - name: Namespace snapshot
+        env:
+          NS: ${{ inputs.namespace }}
+        run: |
+          {
+            echo "### ${NS}"
+            echo '```'
+            bash deploy/diagnose.sh "$NS"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
