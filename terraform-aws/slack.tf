@@ -28,7 +28,7 @@ provider "aws" {
 resource "aws_iam_role" "slack" {
   count = local.slack_enabled ? 1 : 0
 
-  name               = "${var.project}-slack-alerts"
+  name = "${var.project}-slack-alerts"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
