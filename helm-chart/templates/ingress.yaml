@@ -12,6 +12,7 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/healthcheck-path: /_healthz
+    alb.ingress.kubernetes.io/target-group-attributes: deregistration_delay.timeout_seconds=30
     alb.ingress.kubernetes.io/tags: {{ printf "Namespace=%s" .Release.Namespace | quote }}
     {{- with .Values.frontend.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
