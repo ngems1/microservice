@@ -21,6 +21,10 @@ on:
         description: "Image tag to deploy (commit SHA)"
         type: string
         required: true
+    outputs:
+      url:
+        description: "Shop address (ALB) of this environment"
+        value: ${{ jobs.deploy.outputs.url }}
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
@@ -37,6 +41,8 @@ jobs:
     timeout-minutes: 45
     environment:
       name: ${{ inputs.environment }}
+      url: ${{ steps.smoke.outputs.url }}
+    outputs:
       url: ${{ steps.smoke.outputs.url }}
     concurrency:
       group: deploy-${{ inputs.environment }}

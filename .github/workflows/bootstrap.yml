@@ -132,6 +132,8 @@ jobs:
             -var "region=${AWS_REGION}" \
             -var "github_owner=${{ github.repository_owner }}" \
             -var "github_repo=${{ github.event.repository.name }}" \
+            -var "github_owner_id=${{ github.repository_owner_id }}" \
+            -var "github_repo_id=${{ github.repository_id }}" \
             -var "state_bucket_name=${BUCKET}" \
             -var "create_oidc_provider=false"
           {

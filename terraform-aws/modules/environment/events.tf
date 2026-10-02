@@ -110,6 +110,12 @@ resource "aws_sqs_queue_policy" "dlq" {
   })
 }
 
+# Every alarm of this environment notifies this topic; Slack is subscribed to it
+# (terraform-aws/slack.tf). One topic per environment, so messages say dev or prod.
+resource "aws_sns_topic" "alerts" {
+  name = "${var.name_prefix}-alerts"
+}
+
 resource "aws_cloudwatch_metric_alarm" "dlq_not_empty" {
   for_each = local.flows
 
@@ -124,6 +130,8 @@ resource "aws_cloudwatch_metric_alarm" "dlq_not_empty" {
   threshold           = 0
   comparison_operator = "GreaterThanThreshold"
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "queue_backlog" {
@@ -140,4 +148,6 @@ resource "aws_cloudwatch_metric_alarm" "queue_backlog" {
   threshold           = 300
   comparison_operator = "GreaterThanThreshold"
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
 }

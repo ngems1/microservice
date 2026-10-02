@@ -217,3 +217,52 @@ jobs:
     needs: deploy-prod
     if: always() && needs.deploy-prod.result == 'success'
     uses: ./.github/workflows/isolation-test.yml
+
+  # --- Slack (deploy/notify-slack.sh; silent when the SLACK_WEBHOOK_URL secret is unset)
+  notify-approval:
+    needs: [setup, deploy-dev]
+    if: needs.deploy-dev.result == 'success' && inputs.target != 'dev-only'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prod is waiting for approval
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TAG: ${{ needs.setup.outputs.tag }}
+          DEV_URL: ${{ needs.deploy-dev.outputs.url }}
+        run: |
+          bash deploy/notify-slack.sh warning "Prod is waiting for your approval" \
+            "Version \`${TAG}\` passed dev: ${DEV_URL}"$'\n'"Approve it in the run: *Review deployments*."
+
+  notify:
+    needs: [setup, build, deploy-dev, deploy-prod, isolation-test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deployment result
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TAG: ${{ needs.setup.outputs.tag || 'none' }}
+          BUILD: ${{ needs.build.result }}
+          DEV: ${{ needs.deploy-dev.result }}
+          PROD: ${{ needs.deploy-prod.result }}
+          ISOLATION: ${{ needs.isolation-test.result }}
+          SETUP: ${{ needs.setup.result }}
+          DEV_URL: ${{ needs.deploy-dev.outputs.url }}
+          PROD_URL: ${{ needs.deploy-prod.outputs.url }}
+        run: |
+          icon() { case "$1" in success) echo ":white_check_mark:";; skipped) echo ":fast_forward:";; cancelled) echo ":no_entry_sign:";; *) echo ":x:";; esac; }
+          text="$(icon "$SETUP") setup   $(icon "$BUILD") build + scan   $(icon "$DEV") dev   $(icon "$PROD") prod   $(icon "$ISOLATION") isolation test"
+          [ -n "$DEV_URL" ] && text+=$'\n'"Dev: ${DEV_URL}"
+          [ -n "$PROD_URL" ] && text+=$'\n'"Prod: ${PROD_URL}"
+          if [ "$PROD" = success ] && [ "$ISOLATION" = success ]; then
+            color=good; title="Deployed \`${TAG}\` to dev and prod"
+          elif [ "$DEV" = success ] && [ "$PROD" = skipped ]; then
+            color=good; title="Deployed \`${TAG}\` to dev"
+          elif [ "$PROD" = success ]; then
+            color=warning; title="Deployed \`${TAG}\`, but the isolation test did not pass"
+          else
+            color=danger; title="Deployment of \`${TAG}\` failed"
+          fi
+          bash deploy/notify-slack.sh "$color" "$title" "$text"

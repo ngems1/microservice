@@ -76,3 +76,15 @@ variable "lbc_version" {
   type        = string
   default     = "v2.13.0"
 }
+
+variable "slack_team_id" {
+  description = "Slack workspace ID (T...), after authorizing Slack in Amazon Q Developer in chat applications. Empty = no Slack alerts."
+  type        = string
+  default     = ""
+}
+
+variable "slack_channel_id" {
+  description = "Slack channel ID (C...) that receives the CloudWatch alarms."
+  type        = string
+  default     = ""
+}

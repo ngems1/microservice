@@ -52,7 +52,7 @@ If it already exists, skip this step: only one is allowed per account.
        "Condition": {
          "StringEquals": {
            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-           "token.actions.githubusercontent.com:sub": "repo:<OWNER>/<REPO>:environment:prod"
+           "token.actions.githubusercontent.com:sub": "repo:<OWNER>@<OWNER_ID>/<REPO>@<REPO_ID>:environment:prod"
          }
        }
      }]
@@ -60,6 +60,8 @@ If it already exists, skip this step: only one is allowed per account.
    ```
 
    The `environment:prod` part means only jobs running in the protected `prod` environment can use this role.
+
+   **The `sub` format.** Repositories created after 15 July 2026 identify themselves with immutable IDs: `repo:ngems1@330211773/microservice@1400562371:environment:prod` for this repo. Older repositories use `repo:<OWNER>/<REPO>:environment:prod`. The step "Show the identity GitHub presents to AWS" in the bootstrap run prints the exact value: copy it **whole**, including `:environment:prod`.
 
 3. **Next**, then tick **AdministratorAccess**, then **Next**.
 4. **Name:** `week3-bootstrap`. Click **Create role**, then copy its **ARN**.

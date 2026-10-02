@@ -33,7 +33,11 @@ Actions tab > **infra** > Run workflow > action = `apply`. It takes about 25 to 
 
 Actions > **deploy** > Run workflow (or push a change under `src/`, `helm-chart/` or `db/`). It builds and scans the 12 images, deploys **dev**, then waits for your approval to deploy the same images to **prod**. The shop's address is on the run's Summary page. Details: **[DEPLOY.md](DEPLOY.md)**.
 
-## 7. Look at the cluster (optional, from CloudShell)
+## 7. Slack (optional)
+
+Pipeline messages and AWS alarms in a Slack channel: **[SLACK.md](SLACK.md)**.
+
+## 8. Look at the cluster (optional, from CloudShell)
 
 ```bash
 aws eks update-kubeconfig --name week3-boutique-eks --region us-east-1

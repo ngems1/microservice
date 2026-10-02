@@ -12,7 +12,12 @@ locals {
   bucket_name = var.state_bucket_name != "" ? var.state_bucket_name : "week3-tfstate-${data.aws_caller_identity.current.account_id}"
   oidc_url    = "token.actions.githubusercontent.com"
   oidc_arn    = var.create_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_url}"
-  repo        = "repo:${var.github_owner}/${var.github_repo}"
+
+  # GitHub's "sub" claim starts with the repository. Repos created after 15 July 2026
+  # use immutable IDs (repo:owner@123/name@456): when the IDs are given, only that
+  # form is trusted, so a deleted-and-recreated repo with the same name gets nothing.
+  use_ids = var.github_owner_id != "" && var.github_repo_id != ""
+  repos   = [local.use_ids ? "repo:${var.github_owner}@${var.github_owner_id}/${var.github_repo}@${var.github_repo_id}" : "repo:${var.github_owner}/${var.github_repo}"]
 }
 
 # ---------------------------------------------------------------------------
@@ -114,7 +119,7 @@ data "aws_iam_policy_document" "plan_trust" {
     condition {
       test     = "StringEquals"
       variable = "${local.oidc_url}:sub"
-      values   = ["${local.repo}:pull_request"]
+      values   = [for r in local.repos : "${r}:pull_request"]
     }
   }
 }
@@ -175,10 +180,10 @@ data "aws_iam_policy_document" "deploy_trust" {
     condition {
       test     = "StringEquals"
       variable = "${local.oidc_url}:sub"
-      values = concat(
-        ["${local.repo}:ref:refs/heads/main"],
-        [for env in var.github_environments : "${local.repo}:environment:${env}"],
-      )
+      values = flatten([for r in local.repos : concat(
+        ["${r}:ref:refs/heads/main"],
+        [for env in var.github_environments : "${r}:environment:${env}"],
+      )])
     }
   }
 }

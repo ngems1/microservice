@@ -33,6 +33,8 @@ env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
   TF_VAR_region: ${{ vars.AWS_REGION || 'us-east-1' }}
   TF_VAR_admin_principal_arn: ${{ vars.ADMIN_PRINCIPAL_ARN }}
+  TF_VAR_slack_team_id: ${{ vars.SLACK_TEAM_ID }}
+  TF_VAR_slack_channel_id: ${{ vars.SLACK_CHANNEL_ID }}
   TF_IN_AUTOMATION: "true"
 
 jobs:
@@ -127,3 +129,15 @@ jobs:
       - name: terraform destroy
         if: inputs.action == 'destroy'
         run: terraform destroy -input=false -auto-approve
+
+      # Applies and destroys change real infrastructure: tell the team in Slack.
+      - name: Slack notification
+        if: always() && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.action == 'apply' || inputs.action == 'destroy')
+        working-directory: .
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          ACTION: ${{ inputs.action || 'apply' }}
+          STATUS: ${{ job.status }}
+        run: |
+          if [ "$STATUS" = success ]; then color=good; else color=danger; fi
+          bash deploy/notify-slack.sh "$color" "Infrastructure ${ACTION}: ${STATUS}" "terraform ${ACTION} on the shared VPC, EKS and both environments."

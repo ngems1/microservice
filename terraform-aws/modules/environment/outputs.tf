@@ -16,5 +16,6 @@ output "settings" {
     dlq_urls               = { for k, q in aws_sqs_queue.dlq : k => q.id }
     order_status_lambda    = aws_lambda_function.order_status.function_name
     pod_roles              = { for k, r in aws_iam_role.pod : k => r.arn }
+    alerts_topic_arn       = aws_sns_topic.alerts.arn
   }
 }

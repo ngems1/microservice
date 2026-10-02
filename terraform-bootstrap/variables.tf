@@ -14,6 +14,18 @@ variable "github_repo" {
   type        = string
 }
 
+variable "github_owner_id" {
+  description = "Numeric ID of the GitHub owner (github.repository_owner_id). Needed for repos that use immutable OIDC subjects."
+  type        = string
+  default     = ""
+}
+
+variable "github_repo_id" {
+  description = "Numeric ID of the GitHub repository (github.repository_id)."
+  type        = string
+  default     = ""
+}
+
 variable "state_bucket_name" {
   description = "Name of the Terraform state bucket. Empty = week3-tfstate-<account-id>."
   type        = string
