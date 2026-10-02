@@ -1,9 +1,10 @@
 # CloudWatch alarms -> SNS (one topic per environment) -> slack-alerts Lambda -> Slack.
 #
-# The Lambda posts to the same Slack incoming webhook as the pipeline messages.
+# Alarms go to their own Slack channel (e.g. #boutique-alerts), separate from the
+# pipeline messages (#boutique-deploys), through their own incoming webhook.
 # The webhook URL lives in a Secrets Manager secret: Terraform creates the empty
 # secret, and the infra workflow writes the value from the GitHub secret
-# SLACK_WEBHOOK_URL after each apply. So the URL is never in code, in the Terraform
+# SLACK_ALERTS_WEBHOOK_URL after each apply. So the URL is never in code, in the Terraform
 # state, or in the Lambda's settings. No value stored = alarms are only logged.
 #
 # (Amazon Q Developer in chat applications, the AWS-managed Slack integration,
@@ -11,7 +12,7 @@
 
 resource "aws_secretsmanager_secret" "slack_webhook" {
   name        = "${var.project}/slack-webhook-url"
-  description = "Slack incoming webhook URL for CloudWatch alarms. Value written by the infra workflow."
+  description = "Slack incoming webhook URL of the alerts channel. Value written by the infra workflow."
 
   # Deleted at once on destroy, so the next apply can recreate the same name.
   recovery_window_in_days = 0

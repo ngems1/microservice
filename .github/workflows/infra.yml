@@ -121,27 +121,27 @@ jobs:
         if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.action == 'apply'
         run: terraform output
 
-      # CloudWatch alarms reach Slack through the slack-alerts Lambda, which reads the
-      # webhook URL from Secrets Manager. Written here (not by Terraform) so the URL
+      # CloudWatch alarms reach Slack (alerts channel, its own webhook) through the
+      # slack-alerts Lambda, which reads the webhook URL from Secrets Manager. Written here (not by Terraform) so the URL
       # never lands in the Terraform state. Only written when it changed.
       - name: Store the Slack webhook for alarms
         if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.action == 'apply'
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_ALERTS_WEBHOOK_URL: ${{ secrets.SLACK_ALERTS_WEBHOOK_URL }}
         run: |
-          if [ -z "$SLACK_WEBHOOK_URL" ]; then
-            echo "::notice::No SLACK_WEBHOOK_URL secret: alarms are logged but not sent to Slack (docs/week3/SLACK.md)."
+          if [ -z "$SLACK_ALERTS_WEBHOOK_URL" ]; then
+            echo "::notice::No SLACK_ALERTS_WEBHOOK_URL secret: alarms are logged but not sent to Slack (docs/week3/SLACK.md)."
             exit 0
           fi
           secret_arn=$(terraform output -raw slack_webhook_secret_arn)
           current=$(aws secretsmanager get-secret-value --secret-id "$secret_arn" \
                       --query SecretString --output text 2>/dev/null || true)
-          if [ "$current" = "$SLACK_WEBHOOK_URL" ]; then
+          if [ "$current" = "$SLACK_ALERTS_WEBHOOK_URL" ]; then
             echo "Slack webhook already stored."
           else
             aws secretsmanager put-secret-value --secret-id "$secret_arn" \
-              --secret-string "$SLACK_WEBHOOK_URL" >/dev/null
-            echo "Slack webhook stored: CloudWatch alarms will be posted to Slack."
+              --secret-string "$SLACK_ALERTS_WEBHOOK_URL" >/dev/null
+            echo "Alerts webhook stored: CloudWatch alarms will be posted to the alerts channel."
           fi
 
       # --- teardown ---------------------------------------------------------
