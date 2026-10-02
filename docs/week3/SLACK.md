@@ -5,7 +5,7 @@ Two kinds of messages go to Slack:
 | What | From | How |
 |---|---|---|
 | **Pipeline:** prod waiting for approval, deploy result (build, dev, prod, isolation test, shop links), infra apply/destroy result | GitHub Actions | Incoming webhook, called by `deploy/notify-slack.sh` |
-| **AWS alarms:** a dead-letter queue has messages, a queue is backing up, the order-status Lambda fails (dev and prod) | CloudWatch → SNS topic per environment → Slack | Amazon Q Developer in chat applications (formerly AWS Chatbot), `terraform-aws/slack.tf` |
+| **AWS alarms:** a dead-letter queue has messages, a queue is backing up, the order-status Lambda fails (dev and prod) | CloudWatch → SNS topic per environment → `slack-alerts` Lambda → Slack | Same incoming webhook, read from Secrets Manager, `terraform-aws/slack.tf` |
 
 Both are optional. Until they are set up, nothing is sent and nothing fails.
 
@@ -21,31 +21,44 @@ Both are optional. Until they are set up, nothing is sent and nothing fails.
 
 The next `deploy` or `infra apply` run posts to the channel.
 
-## 2. AWS alarms (10 minutes)
+## 2. AWS alarms (nothing more to set up)
 
-1. AWS console, switch the region to **US East (Ohio) us-east-2**. This service's console only works there; the alarms themselves stay in us-east-1.
-2. Search for **Amazon Q Developer in chat applications** → **Configure new client** → **Slack** → **Configure** → **Allow** (you're the workspace admin).
-3. Copy the **Workspace ID** shown for your workspace (starts with `T`).
-4. Slack: right-click the channel → **View channel details** → at the bottom, copy the **Channel ID** (starts with `C`). For a private channel, also type `/invite @Amazon Q` in it.
-5. GitHub: **Settings → Secrets and variables → Actions → Variables tab**, add two repository variables:
-   - `SLACK_TEAM_ID` = the workspace ID
-   - `SLACK_CHANNEL_ID` = the channel ID
-6. Run **infra → apply**. Terraform creates the Slack channel configuration and subscribes it to the dev and prod alarm topics.
+Once `SLACK_WEBHOOK_URL` is set (section 1), alarms use the same webhook:
 
-Don't create the channel configuration by hand in the console: Terraform creates it, and a manual one would be a duplicate.
-
-### Test an alarm (CloudShell, us-east-1)
-
-```bash
-aws cloudwatch set-alarm-state \
-  --alarm-name week3-boutique-dev-inventory-dlq-not-empty \
-  --state-value ALARM --state-reason "Slack test"
+```
+CloudWatch alarm -> SNS topic (dev / prod) -> week3-boutique-slack-alerts Lambda -> Slack
 ```
 
-The message arrives in Slack within a minute. The alarm goes back to OK by itself at the next check, and that sends an "OK" message too.
+- Terraform creates the Lambda, an **empty** Secrets Manager secret `week3-boutique/slack-webhook-url`, and subscribes the Lambda to both environments' alarm topics.
+- After every `infra` apply, the workflow step **Store the Slack webhook for alarms** copies the GitHub secret into that Secrets Manager secret (only when it changed). The URL is never in the code, the Terraform state or the Lambda's settings.
+- So: set the GitHub secret, run **infra → apply** once. It keeps working after every destroy / apply.
+
+Messages: :red_circle: **ALARM** when an alarm fires, :large_green_circle: **OK** when it recovers, with the environment, the reason and a link to the alarm in CloudWatch.
+
+| Alarm | Fires when |
+|---|---|
+| `week3-boutique-<env>-<flow>-dlq-not-empty` | A message failed 3 times and is in a dead-letter queue |
+| `week3-boutique-<env>-<flow>-backlog` | A queue is backing up |
+| `week3-boutique-<env>-order-status-lambda-errors` | The order-status Lambda throws errors |
+
+Why not Amazon Q Developer in chat applications (AWS Chatbot)? Its one-time Slack authorization needs `chatbot:*` permissions in the console, which this account's IAM user doesn't have. The Lambda route needs only what the pipeline already has.
+
+### Test an alarm (console only)
+
+Send an order that doesn't exist: **EventBridge → Event buses → Send events**, bus `week3-boutique-dev-events`, source `boutique.checkout`, detail type `OrderCreated`, detail:
+
+```json
+{"version":"1","orderId":"console-test-001","email":"someone@example.com","items":[{"productId":"OLJCESPC7Z","quantity":1}]}
+```
+
+inventoryservice reserves it, the order-status Lambda can't find it in MySQL and fails 3 times, the message lands in `week3-boutique-dev-order-status-dlq`. Within about 5 minutes Slack shows **ALARM** for `...-order-status-lambda-errors` and `...-order-status-dlq-not-empty`.
+
+Clean up: **SQS → order-status-dlq → Purge** (the alarm goes back to OK and Slack shows it), then in DynamoDB set `PRODUCT#OLJCESPC7Z` stock back and delete `RESERVATION#console-test-001`.
+
+If nothing arrives: **Lambda → week3-boutique-slack-alerts → Monitor → View CloudWatch logs**. `no Slack webhook stored` means the GitHub secret is missing or infra wasn't applied after adding it.
 
 ## Security notes
 
 - The webhook URL is stored as a GitHub **secret**, never in the code.
-- The Slack integration's AWS role (`week3-boutique-slack-alerts`) and its guardrail only allow **reading** CloudWatch: nobody can change AWS resources from Slack.
+- The `slack-alerts` Lambda's role can only write its own logs and read that one secret. The webhook URL is copied into Secrets Manager by the workflow, so it is never in the Terraform state.
 - A Slack failure never fails a deployment (`notify-slack.sh` always exits 0).

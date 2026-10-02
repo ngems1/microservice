@@ -25,3 +25,8 @@ output "environments" {
   description = "Per-environment settings for the Helm values: terraform output -json environments"
   value       = { for name, env in module.env : name => env.settings }
 }
+
+output "slack_webhook_secret_arn" {
+  description = "Secrets Manager secret the infra workflow writes the Slack webhook URL into (read by the slack-alerts Lambda)."
+  value       = aws_secretsmanager_secret.slack_webhook.arn
+}
