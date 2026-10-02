@@ -63,3 +63,15 @@ The pipeline deploys everything, but three code changes are still to come:
 - emailservice consuming `notification-q`
 
 Until then, inventoryservice runs and seeds its stock, but no orders reach it.
+
+## Follow an order through the event flow
+
+1. Place an order in the shop (dev or prod link from the deploy run's Summary). To see the failure path in dev, order 3 mugs: dev only has 2.
+2. **Actions > order-flow > Run workflow**, then pick the environment.
+3. The run's Summary shows:
+   - **Orders (RDS MySQL):** the order moves from `PENDING` to `CONFIRMED`, or `FAILED` with reason `INSUFFICIENT_STOCK`
+   - **Reservations (DynamoDB):** `RESERVED` or `FAILED` for each order, plus the current stock
+   - **Queues:** messages waiting or in flight. A dead-letter queue above 0 means a consumer is failing.
+   - **Lambda logs:** each status change, with its order ID
+
+For pods and events, use **Actions > cluster-status**.
