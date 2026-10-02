@@ -28,13 +28,9 @@ RUN ./gradlew installDist
 # Week 3: runtime base image updated (the 2023 image had CRITICAL CVEs, blocked by the ECR scan gate)
 FROM eclipse-temurin:21-jre-alpine
 
-RUN apk add --no-cache ca-certificates
-
-# Download Stackdriver Profiler Java agent
-RUN mkdir -p /opt/cprof && \
-    wget -q -O- https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent_alpine.tar.gz \
-    | tar xzv -C /opt/cprof && \
-    rm -rf profiler_java_agent.tar.gz
+# Week 3: security fixes on top of the base image. The Google Cloud Profiler agent
+# that used to be downloaded here is gone: it only works on GCP.
+RUN apk upgrade --no-cache && apk add --no-cache ca-certificates
 
 WORKDIR /app
 COPY --from=builder /app .
