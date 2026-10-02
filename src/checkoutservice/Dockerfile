@@ -33,12 +33,19 @@ RUN go test -vet=off ./...
 # Downloaded here and copied with explicit permissions: the service runs as a
 # non-root user and must be able to read it.
 RUN curl -fsSL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o /rds-global-bundle.pem \
- && grep -q "BEGIN CERTIFICATE" /rds-global-bundle.pem
+ && grep -q "BEGIN CERTIFICATE" /rds-global-bundle.pem \
+ && chmod 0644 /rds-global-bundle.pem
 
 # Week 3: runtime base image updated (the 2023 image had CRITICAL CVEs, blocked by the ECR scan gate)
 FROM alpine:3.22
-RUN apk upgrade --no-cache && apk add --no-cache ca-certificates
-COPY --from=builder --chmod=0644 /rds-global-bundle.pem /etc/ssl/rds/global-bundle.pem
+# The folder is created here with normal permissions (755). Letting COPY/ADD --chmod
+# create it gave the folder the file's 644, so the non-root user could not open it.
+RUN apk upgrade --no-cache && apk add --no-cache ca-certificates \
+ && mkdir -p -m 0755 /etc/ssl/rds
+COPY --from=builder /rds-global-bundle.pem /etc/ssl/rds/global-bundle.pem
+# Fails the build if a non-root user can't read the bundle.
+RUN su -s /bin/sh nobody -c "test -r /etc/ssl/rds/global-bundle.pem" \
+ || { ls -ld /etc/ssl/rds /etc/ssl/rds/global-bundle.pem; echo "RDS CA bundle not readable by non-root users"; exit 1; }
 
 WORKDIR /src
 COPY --from=builder /checkoutservice /src/checkoutservice
