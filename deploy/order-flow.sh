@@ -45,12 +45,13 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
         - |
-          q() { mysql --host="\$DB_HOST" --port="\$DB_PORT" --user="\$DB_USER" --ssl-mode=VERIFY_IDENTITY --ssl-ca=/ca/rds-ca.pem -t "\$DB_NAME" -e "\$1"; }
-          q "SELECT status, COUNT(*) AS orders FROM orders GROUP BY status"
+          q() { mysql --host="\$DB_HOST" --port="\$DB_PORT" --user="\$DB_USER" --ssl-mode=VERIFY_IDENTITY --ssl-ca=/ca/rds-ca.pem "\$DB_NAME" "\${@:2}" -e "\$1"; }
+          echo "Orders in the table: \$(q 'SELECT COUNT(*) FROM orders' -N -s | tr -d '[:space:]')"
+          q "SELECT status, COUNT(*) AS orders FROM orders GROUP BY status" -t
           q "SELECT order_id, status, status_reason AS reason,
                     CONCAT(currency, ' ', total_units, '.', LPAD(FLOOR(total_nanos / 10000000), 2, '0')) AS total,
                     created_at, updated_at
-             FROM orders ORDER BY created_at DESC LIMIT 10"
+             FROM orders ORDER BY created_at DESC LIMIT 10" -t
         envFrom:
         - secretRef:
             name: ${JOB}
@@ -78,6 +79,16 @@ YAML
 kubectl -n "$NS" wait --for=condition=complete "job/${JOB}" --timeout=120s >/dev/null 2>&1 \
   || echo "(query did not complete, details below)"
 kubectl -n "$NS" logs "job/${JOB}" 2>&1
+
+echo
+echo "=== 1b. checkoutservice: is it saving orders? (last 3 hours) ==="
+# "enabled" = connected to MySQL + EventBridge; "not ready" = still retrying (the error says why);
+# "order saved" = one line per order placed.
+kubectl -n "$NS" get deploy checkoutservice \
+  -o jsonpath='image: {.spec.template.spec.containers[0].image}{"\n"}' 2>&1
+checkout_lines=$(kubectl -n "$NS" logs deploy/checkoutservice -c server --since=3h 2>&1 \
+  | grep -iE "order (persistence|store|saved|not recorded)|OrderCreated|disabled|error" | tail -20)
+echo "${checkout_lines:-(no order-related lines in the checkout logs: the pod may be running an image without the order code)}"
 
 echo
 echo "=== 2. Inventory (DynamoDB ${INVENTORY_TABLE}) ==="
