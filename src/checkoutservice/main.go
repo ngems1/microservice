@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"sync/atomic"
 	"time"
 
 	"cloud.google.com/go/profiler"
@@ -80,8 +81,10 @@ type checkoutService struct {
 	paymentSvcAddr string
 	paymentSvcConn *grpc.ClientConn
 
-	// Week 3: order persistence + OrderCreated (orders.go). nil = disabled.
-	orders *orderStore
+	// Week 3: order persistence + OrderCreated (orders.go). Empty until the
+	// store is ready; ordersWanted says whether it is configured at all.
+	orders       atomic.Pointer[orderStore]
+	ordersWanted bool
 }
 
 func main() {
@@ -121,18 +124,18 @@ func main() {
 	mustConnGRPC(ctx, &svc.emailSvcConn, svc.emailSvcAddr)
 	mustConnGRPC(ctx, &svc.paymentSvcConn, svc.paymentSvcAddr)
 
-	orders, err := newOrderStore(ctx)
-	if err != nil {
-		log.Fatalf("order store: %v", err)
-	}
-	if orders == nil {
-		log.Info("order persistence and events disabled (EVENT_BUS_NAME / DB_SECRET_ARN not set)")
+	// The order store connects in the background, with retries: checkout serves
+	// (and passes its health checks) even while the database is unreachable, and
+	// every failed attempt is logged with its reason.
+	svc.ordersWanted = os.Getenv("EVENT_BUS_NAME") != "" && os.Getenv("DB_SECRET_ARN") != ""
+	if svc.ordersWanted {
+		go svc.connectOrderStore(ctx)
 	} else {
-		log.Info("order persistence (RDS MySQL) and events (EventBridge) enabled")
+		log.Info("order persistence and events disabled (EVENT_BUS_NAME / DB_SECRET_ARN not set)")
 	}
-	svc.orders = orders
 
-	log.Infof("service config: %+v", svc)
+	log.Infof("service config: shipping=%s catalog=%s cart=%s currency=%s email=%s payment=%s",
+		svc.shippingSvcAddr, svc.productCatalogSvcAddr, svc.cartSvcAddr, svc.currencySvcAddr, svc.emailSvcAddr, svc.paymentSvcAddr)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
@@ -284,10 +287,12 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 	// Week 3: save the order (PENDING) and publish OrderCreated. The card is already
 	// charged, so a failure here is logged (and visible in CloudWatch) instead of
 	// failing the customer's checkout.
-	if cs.orders != nil {
-		if err := cs.orders.record(ctx, orderResult, req.Email, &total); err != nil {
+	if store := cs.orders.Load(); store != nil {
+		if err := store.record(ctx, orderResult, req.Email, &total); err != nil {
 			log.WithField("orderId", orderResult.OrderId).Errorf("order not recorded: %v", err)
 		}
+	} else if cs.ordersWanted {
+		log.WithField("orderId", orderResult.OrderId).Error("order not recorded: order store not connected yet")
 	}
 
 	if err := cs.sendOrderConfirmation(ctx, req.Email, orderResult); err != nil {
@@ -411,4 +416,18 @@ func (cs *checkoutService) shipOrder(ctx context.Context, address *pb.Address, i
 		return "", fmt.Errorf("shipment failed: %+v", err)
 	}
 	return resp.GetTrackingId(), nil
+}
+
+// connectOrderStore retries until the order store is ready (30 s between tries).
+func (cs *checkoutService) connectOrderStore(ctx context.Context) {
+	for attempt := 1; ; attempt++ {
+		store, err := newOrderStore(ctx)
+		if err == nil && store != nil {
+			cs.orders.Store(store)
+			log.Info("order persistence (RDS MySQL) and events (EventBridge) enabled")
+			return
+		}
+		log.Errorf("order store not ready (attempt %d, retrying in 30s): %v", attempt, err)
+		time.Sleep(30 * time.Second)
+	}
 }
