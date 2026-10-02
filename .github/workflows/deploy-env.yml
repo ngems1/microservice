@@ -165,18 +165,23 @@ jobs:
           echo "revision=${rev:-0}" >> "$GITHUB_OUTPUT"
           echo "Current revision: ${rev:-0}"
 
-      # --rollback-on-failure (Helm 4's --atomic): if the pods aren't ready within
-      # the timeout, Helm puts the previous release back by itself.
+      # Upgrades use --rollback-on-failure (Helm 4's --atomic): if the pods aren't ready
+      # within the timeout, Helm puts the previous release back by itself.
+      # The very first install has nothing to go back to, so it only waits: a failed
+      # first install stays in place, to be inspected (see "Diagnostics" below).
       - name: Deploy with Helm
         id: helm
+        env:
+          PREVIOUS: ${{ steps.before.outputs.revision }}
         run: |
+          if [ "$PREVIOUS" = "0" ]; then safety=(--wait=watcher); else safety=(--rollback-on-failure); fi
           helm upgrade --install "$RELEASE" ./helm-chart \
             --namespace "$NS" \
             -f helm-chart/values-aws.yaml \
             -f "helm-chart/values-${ENVIRONMENT}.yaml" \
             -f values-terraform.json \
             --set images.tag="$TAG" \
-            --rollback-on-failure --timeout 10m
+            "${safety[@]}" --timeout 10m
           kubectl -n "$NS" get pods -o wide
 
       - name: Smoke test
@@ -215,6 +220,18 @@ jobs:
           kill "$pf" || true
           echo "inventory /stock: ${stock}"
           jq -e 'length > 0' <<<"$stock" >/dev/null || { echo "::error::inventoryservice /stock returned no stock"; exit 1; }
+
+      # Why pods aren't ready: status, scheduling/probe events, and the logs of
+      # containers that crashed. Printed in the log and on the run's Summary page.
+      - name: Diagnostics
+        if: failure() && env.NS != ''
+        run: |
+          {
+            echo "### Diagnostics: ${NS}"
+            echo '```'
+            bash deploy/diagnose.sh "$NS"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       # Pods were ready but the shop doesn't work: put the previous release back.
       - name: Roll back
