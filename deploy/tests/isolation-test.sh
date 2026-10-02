@@ -106,15 +106,20 @@ else
 fi
 
 echo "== IAM: dev inventoryservice (Pod Identity) =="
-# Uses the dev pod's own credentials. Prints OK, AccessDenied or the error code.
+# Uses the dev pod's own credentials. Prints OK, AccessDenied, or what went wrong
+# (exception name, or kubectl's own error), so a broken check is never silent.
 dynamo() {
-  kubectl -n "$DEV_NS" exec deploy/inventoryservice -c server -- python -c "
-import boto3, botocore
+  local out
+  out=$(kubectl -n "$DEV_NS" exec deploy/inventoryservice -c server -- python -c "
+import boto3
 try:
-    boto3.client('dynamodb').scan(TableName='$1', Limit=1); print('OK')
-except botocore.exceptions.ClientError as e:
-    code = e.response['Error']['Code']
-    print('AccessDenied' if 'AccessDenied' in code else code)" 2>/dev/null | tail -1
+    boto3.client('dynamodb').scan(TableName='$1', Limit=1)
+    print('OK')
+except Exception as e:
+    code = getattr(e, 'response', {}).get('Error', {}).get('Code', '') or type(e).__name__
+    print('AccessDenied' if 'AccessDenied' in code else code + ': ' + str(e)[:150])
+" 2>&1)
+  echo "$out" | tr -d '\r' | grep -v '^\s*$' | tail -1
 }
 record "dev role -> dev table" OK "$(dynamo "$DEV_TABLE")"
 record "dev role -> prod table" AccessDenied "$(dynamo "$PROD_TABLE")"
