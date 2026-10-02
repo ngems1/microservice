@@ -71,6 +71,12 @@ spec:
               httpHeaders:
               - name: "Cookie"
                 value: "shop_session-id=x-liveness-probe"
+          # Week 3: on shutdown, keep serving 15 s while the ALB deregisters this pod,
+          # so no request lands on a pod that is already gone (zero-downtime rollout).
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 15
           env:
           - name: PORT
             value: "8080"

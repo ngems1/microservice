@@ -109,8 +109,13 @@ jobs:
             --rollback-on-failure --timeout 5m
           kubectl -n kube-system rollout status deployment/aws-load-balancer-controller --timeout=3m
 
+      # The label makes the Load Balancer Controller add a readiness gate to new pods:
+      # a pod only counts as ready once the ALB sees it healthy, so a rollout never
+      # removes old pods before the new ones receive traffic.
       - name: Namespace
-        run: kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
+        run: |
+          kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
+          kubectl label namespace "$NS" elbv2.k8s.aws/pod-readiness-gate-inject=enabled --overwrite
 
       - name: Database migrations
         run: |
@@ -207,9 +212,15 @@ jobs:
             sleep 10
           done
           [ "$code" = 200 ] || { echo "::error::http://${host}/ answered ${code:-nothing}"; exit 1; }
+          # Each page gets 5 tries: one slow answer during a rollout is not a failure,
+          # a page that keeps failing is.
           for path in /_healthz /product/OLJCESPC7Z /cart; do
-            c=$(check "$path"); echo "GET ${path} -> ${c}"
-            [ "$c" = 200 ] || { echo "::error::GET ${path} -> ${c}"; exit 1; }
+            for try in 1 2 3 4 5; do
+              c=$(check "$path"); echo "GET ${path} -> ${c} (try ${try})"
+              [ "$c" = 200 ] && break
+              sleep 5
+            done
+            [ "$c" = 200 ] || { echo "::error::GET ${path} -> ${c} after 5 tries"; exit 1; }
           done
 
           # 3) inventoryservice reads DynamoDB (proves Pod Identity works).
