@@ -27,6 +27,17 @@ import (
 
 type productCatalog struct {
 	catalog pb.ListProductsResponse
+	// Week 3: MySQL + Redis cache (catalog_loader.go). nil = products.json only.
+	loader *catalogLoader
+}
+
+// products returns the catalog for one request: from the database/cache path when
+// it is configured, otherwise from products.json (local runs and tests).
+func (p *productCatalog) products(ctx context.Context) []*pb.Product {
+	if p.loader != nil {
+		return p.loader.products(ctx)
+	}
+	return p.parseCatalog()
 }
 
 func (p *productCatalog) Check(ctx context.Context, req *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
@@ -37,19 +48,19 @@ func (p *productCatalog) Watch(req *healthpb.HealthCheckRequest, ws healthpb.Hea
 	return status.Errorf(codes.Unimplemented, "health check via Watch not implemented")
 }
 
-func (p *productCatalog) ListProducts(context.Context, *pb.Empty) (*pb.ListProductsResponse, error) {
+func (p *productCatalog) ListProducts(ctx context.Context, _ *pb.Empty) (*pb.ListProductsResponse, error) {
 	time.Sleep(extraLatency)
 
-	return &pb.ListProductsResponse{Products: p.parseCatalog()}, nil
+	return &pb.ListProductsResponse{Products: p.products(ctx)}, nil
 }
 
 func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
 	time.Sleep(extraLatency)
 
 	var found *pb.Product
-	for i := 0; i < len(p.parseCatalog()); i++ {
-		if req.Id == p.parseCatalog()[i].Id {
-			found = p.parseCatalog()[i]
+	for _, product := range p.products(ctx) {
+		if req.Id == product.Id {
+			found = product
 		}
 	}
 
@@ -63,7 +74,7 @@ func (p *productCatalog) SearchProducts(ctx context.Context, req *pb.SearchProdu
 	time.Sleep(extraLatency)
 
 	var ps []*pb.Product
-	for _, product := range p.parseCatalog() {
+	for _, product := range p.products(ctx) {
 		if strings.Contains(strings.ToLower(product.Name), strings.ToLower(req.Query)) ||
 			strings.Contains(strings.ToLower(product.Description), strings.ToLower(req.Query)) {
 			ps = append(ps, product)

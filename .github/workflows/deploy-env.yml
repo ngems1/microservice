@@ -94,6 +94,14 @@ jobs:
                 queueUrl:     $e.inventory_queue_url,
                 eventBusName: $e.event_bus_name
               },
+              productCatalogService: { catalog: {
+                awsRegion:   $region,
+                dbHost:      $e.db_host,
+                dbPort:      ($e.db_port | tostring),
+                dbName:      $e.db_name,
+                dbSecretArn: $e.db_secret_arn,
+                redisAddr:   $e.redis_endpoint
+              } },
               emailService:     { notifications: {
                 awsRegion: $region,
                 queueUrl:  $e.notification_queue_url,

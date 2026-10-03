@@ -195,6 +195,16 @@ productCatalogService:
   name: productcatalogservice
   # Specifies an extra latency to any request on productcatalogservice, by default no extra latency.
   extraLatency: ""
+  # Week 3: catalog from RDS MySQL with a Redis cache. Empty dbSecretArn = products.json
+  # only (stock Online Boutique behaviour); the deploy workflow fills these from Terraform.
+  catalog:
+    awsRegion: us-east-1
+    dbHost: ""
+    dbPort: "3306"
+    dbName: ""
+    dbSecretArn: ""
+    redisAddr: ""     # ElastiCache endpoint host:port (same cluster as the carts)
+    cacheTtl: 5m      # how long a catalog read from MySQL stays in Redis
   resources:
     requests:
       cpu: 100m

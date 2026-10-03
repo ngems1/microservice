@@ -75,4 +75,18 @@ Until then, inventoryservice runs and seeds its stock, but no orders reach it.
    - **Lambda logs:** each status change, with its order ID
    - **Notifications:** the email emailservice sent for each final status (one row per order and status, recipient masked). In log mode the email itself is in emailservice's log: search `email sent` in CloudWatch Logs Insights.
 
+## Catalog: database and cache path
+
+productcatalogservice reads the products from RDS MySQL (`products` table) with Redis (ElastiCache) in front:
+a request is answered from Redis when the cached catalog is there (**hit**); otherwise (**miss**) it reads MySQL
+and caches the result for 5 minutes. If Redis is down it reads MySQL directly; if MySQL is down it serves the
+last catalog it read, then the built-in `products.json`. The shop never stops because of the data layer.
+
+**Actions > catalog > Run workflow** shows the prices in MySQL and the service's catalog log lines
+(`catalog cache miss: loaded 9 products from MySQL`, and once a minute `catalog cache stats: N hits, M misses`).
+
+To watch the cache at work, run it with a product and a **new price** (e.g. Sunglasses, `15.00`):
+the shop keeps the old price while the cached catalog is valid (up to 5 minutes), then shows the new one.
+Run it again with `19.99` to put the price back.
+
 For pods and events, use **Actions > cluster-status**.
