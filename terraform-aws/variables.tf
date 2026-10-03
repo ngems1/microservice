@@ -43,7 +43,9 @@ variable "admin_principal_arn" {
 variable "db_instance_class" {
   description = "RDS MySQL instance size for both environments (prod adds a Multi-AZ standby)."
   type        = string
-  default     = "db.t4g.micro"
+  # db.t3.micro (Intel): AWS had no Multi-AZ capacity for db.t4g.micro (Graviton)
+  # in us-east-1 on 2026-10-03 (InsufficientDBInstanceCapacity). Same size and price.
+  default = "db.t3.micro"
 }
 
 variable "ecr_prefix" {
