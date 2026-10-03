@@ -1,0 +1,75 @@
+name: load-test
+
+# Simulated shoppers against the DEV shop for a fixed time; stops by itself.
+# Use it to make the Grafana dashboard move (traffic, latency, orders, queues, CPU)
+# and, later, to trigger the autoscaler. Prod is never load-tested.
+# Actions > load-test > Run workflow. The Locust summary is on the run's Summary page.
+
+on:
+  workflow_dispatch:
+    inputs:
+      users:
+        description: "Simulated shoppers"
+        type: choice
+        options: ["5", "10", "20", "50"]
+        default: "10"
+      minutes:
+        description: "Duration (minutes)"
+        type: choice
+        options: ["5", "10", "15", "30"]
+        default: "10"
+      restock:
+        description: "Reset dev stock first (50 per product, Mug 2)"
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+concurrency:
+  group: load-test # one load test at a time
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 3600
+
+      - name: Read Terraform outputs
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          {
+            echo "CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)"
+            echo "NS=$(jq -r '.outputs.environments.value.dev.namespace' state.json)"
+            echo "INVENTORY_TABLE=$(jq -r '.outputs.environments.value.dev.inventory_table' state.json)"
+          } >> "$GITHUB_ENV"
+          rm -f state.json
+
+      - name: Connect kubectl to the cluster
+        run: aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+
+      - name: Load test
+        env:
+          USERS: ${{ inputs.users }}
+          MINUTES: ${{ inputs.minutes }}
+          RESTOCK: ${{ inputs.restock }}
+        run: |
+          {
+            echo "### Load test: ${USERS} users, ${MINUTES} min, dev"
+            echo '```'
+            bash deploy/load-test.sh
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"

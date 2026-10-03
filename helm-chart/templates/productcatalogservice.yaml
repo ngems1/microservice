@@ -26,6 +26,13 @@ spec:
     metadata:
       labels:
         app: {{ .Values.productCatalogService.name }}
+      {{- if .Values.productCatalogService.catalog.dbSecretArn }}
+      annotations:
+        # Week 3: cache metrics for Prometheus (namespace "monitoring")
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+      {{- end }}
     spec:
       {{- if .Values.serviceAccounts.create }}
       serviceAccountName: {{ .Values.productCatalogService.name }}
@@ -54,6 +61,10 @@ spec:
         image: {{ .Values.images.repository }}/{{ .Values.productCatalogService.name }}:{{ .Values.images.tag | default .Chart.AppVersion }}
         ports:
         - containerPort: 3550
+        {{- if .Values.productCatalogService.catalog.dbSecretArn }}
+        - name: metrics
+          containerPort: 9090
+        {{- end }}
         env:
         - name: PORT
           value: "3550"
@@ -140,6 +151,16 @@ spec:
     ports:
      - port: 3550
        protocol: TCP
+  {{- if .Values.productCatalogService.catalog.dbSecretArn }}
+  # Week 3: cache metrics, for Prometheus only
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: monitoring
+    ports:
+    - port: 9090
+      protocol: TCP
+  {{- end }}
   egress:
   - {}
 {{- end }}

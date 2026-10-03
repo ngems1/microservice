@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Installs or updates the monitoring stack in namespace "monitoring":
+#   kube-prometheus-stack (Prometheus + Grafana, monitoring/kube-prometheus-stack.values.yaml),
+#   the "Boutique" dashboard (monitoring/dashboards/*.json), and Grafana's own ALB
+#   restricted to MONITORING_ALLOWED_CIDR (monitoring/grafana-ingress.yaml).
+# Needs kubectl + helm on the cluster and:
+#   GRAFANA_ADMIN_PASSWORD   Grafana login (GitHub secret). Required.
+#   MONITORING_ALLOWED_CIDR  e.g. 203.0.113.7/32 (GitHub variable). Empty = Grafana not exposed.
+#   KPS_VERSION              kube-prometheus-stack chart version (constraint)
+set -euo pipefail
+: "${GRAFANA_ADMIN_PASSWORD:?}" "${KPS_VERSION:?}"
+NS=monitoring
+MONITORING_ALLOWED_CIDR=${MONITORING_ALLOWED_CIDR:-}
+
+kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
+
+# Grafana admin login: from a private file, never on a command line.
+umask 077
+printf 'admin-user=admin\nadmin-password=%s\n' "$GRAFANA_ADMIN_PASSWORD" > grafana-admin.env
+kubectl -n "$NS" create secret generic grafana-admin --from-env-file=grafana-admin.env \
+  --dry-run=client -o yaml | kubectl apply -f -
+rm -f grafana-admin.env
+
+# Dashboards: one ConfigMap per JSON file, picked up by Grafana's sidecar (label grafana_dashboard=1).
+for f in monitoring/dashboards/*.json; do
+  name="dashboard-$(basename "$f" .json)"
+  kubectl -n "$NS" create configmap "$name" --from-file="$(basename "$f")=$f" --dry-run=client -o yaml \
+    | kubectl label --local -f - grafana_dashboard=1 -o yaml \
+    | kubectl apply --server-side --force-conflicts -f -
+done
+
+helm upgrade --install monitoring kube-prometheus-stack \
+  --repo https://prometheus-community.github.io/helm-charts --version "$KPS_VERSION" \
+  --namespace "$NS" -f monitoring/kube-prometheus-stack.values.yaml \
+  --wait=watcher --timeout 10m
+echo "kube-prometheus-stack: $(helm -n "$NS" list -f '^monitoring$' -o json | jq -r '.[0].chart')"
+kubectl -n "$NS" get pods -o wide
+
+# Grafana's ALB: only from the allowed address range, never from everywhere.
+if [ -z "$MONITORING_ALLOWED_CIDR" ]; then
+  kubectl -n "$NS" delete ingress grafana --ignore-not-found
+  echo "::notice::Grafana is not exposed: set the repository variable MONITORING_ALLOWED_CIDR (e.g. your-ip/32)."
+  exit 0
+fi
+if ! [[ "$MONITORING_ALLOWED_CIDR" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}(,([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2})*$ ]]; then
+  echo "::error::MONITORING_ALLOWED_CIDR must be one or more IPv4 CIDRs, e.g. 203.0.113.7/32"; exit 1
+fi
+if [[ ",$MONITORING_ALLOWED_CIDR," == *",0.0.0.0/0,"* ]]; then
+  echo "::error::MONITORING_ALLOWED_CIDR may not be 0.0.0.0/0: Grafana must not be open to the whole internet"; exit 1
+fi
+export MONITORING_ALLOWED_CIDR
+envsubst '${MONITORING_ALLOWED_CIDR}' < monitoring/grafana-ingress.yaml | kubectl apply -f -
+
+host=""
+for _ in $(seq 1 30); do
+  host=$(kubectl -n "$NS" get ingress grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
+  [ -n "$host" ] && break
+  sleep 10
+done
+if [ -z "$host" ]; then
+  echo "::warning::Grafana's ALB has no address yet. Check: kubectl -n kube-system logs deploy/aws-load-balancer-controller"
+  exit 0
+fi
+echo "GRAFANA_URL=http://${host}" >> "${GITHUB_OUTPUT:-/dev/null}"
+{
+  echo "### Monitoring"
+  echo "- Grafana: http://${host} (user \`admin\`, password = the GRAFANA_ADMIN_PASSWORD secret)"
+  echo "- Reachable only from \`${MONITORING_ALLOWED_CIDR}\`. A new ALB needs 2-3 minutes before it answers."
+  echo "- Dashboard: **Boutique: platform overview** (Dashboards > Browse)"
+} | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"

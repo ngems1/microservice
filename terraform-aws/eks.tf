@@ -58,7 +58,7 @@ module "eks" {
       ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = var.node_instance_types
       min_size       = 2
-      max_size       = 4
+      max_size       = 5
       desired_size   = var.node_desired_size
 
       iam_role_additional_policies = {

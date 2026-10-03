@@ -29,9 +29,9 @@ variable "node_instance_types" {
 }
 
 variable "node_desired_size" {
-  description = "Number of worker nodes. 3 x t3.medium fits all 11 services plus monitoring."
+  description = "Number of worker nodes. A t3.medium runs at most 17 pods (VPC CNI limit): 4 nodes fit both environments, the system pods, monitoring and a load test."
   type        = number
-  default     = 3
+  default     = 4
 }
 
 variable "admin_principal_arn" {

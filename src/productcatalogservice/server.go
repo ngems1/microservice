@@ -154,6 +154,7 @@ func run(port string) string {
 	default:
 		svc.loader = loader
 		go loader.logStats(context.Background(), catalogStatsEvery)
+		go loader.serveMetrics(envOr("METRICS_PORT", "9090"))
 		cache := "no cache (REDIS_ADDR not set)"
 		if loader.cache != nil {
 			cache = "Redis cache, TTL " + loader.ttl.String()
