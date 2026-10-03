@@ -142,6 +142,26 @@ func run(port string) string {
 		log.Warnf("could not parse product catalog")
 	}
 
+	// Week 3: catalog from RDS MySQL with a Redis cache (catalog_loader.go).
+	// products.json stays as the fallback, and is the only source when no
+	// database is configured (local Docker Compose).
+	loader, err := newCatalogLoaderFromEnv(context.Background(), svc.parseCatalog)
+	switch {
+	case err != nil:
+		log.WithError(err).Error("catalog database not configured correctly, serving products.json")
+	case loader == nil:
+		log.Info("catalog source: products.json (DB_SECRET_ARN not set)")
+	default:
+		svc.loader = loader
+		go loader.logStats(context.Background(), catalogStatsEvery)
+		cache := "no cache (REDIS_ADDR not set)"
+		if loader.cache != nil {
+			cache = "Redis cache, TTL " + loader.ttl.String()
+		}
+		log.Infof("catalog source: RDS MySQL (%s:%s/%s) with %s; products.json as fallback",
+			os.Getenv("DB_HOST"), envOr("DB_PORT", "3306"), os.Getenv("DB_NAME"), cache)
+	}
+
 	pb.RegisterProductCatalogServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
 	go srv.Serve(listener)
@@ -235,4 +255,11 @@ func readCatalogFile(catalog *pb.ListProductsResponse) error {
 
 	log.Info("successfully parsed product catalog json")
 	return nil
+}
+
+func envOr(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
 }

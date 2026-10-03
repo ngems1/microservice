@@ -1,0 +1,110 @@
+name: catalog
+
+# Shows the catalog's database/cache path (RDS MySQL + ElastiCache Redis) for one
+# environment, and can change one product's price in MySQL to watch the cache:
+# the shop shows the old price until the cached catalog expires (5 min), then the new one.
+# Actions > catalog > Run workflow. Results are on the run's Summary page.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment"
+        type: choice
+        options: [dev, prod]
+        default: dev
+      product:
+        description: "Product (only used with a new price)"
+        type: choice
+        options:
+          - OLJCESPC7Z Sunglasses
+          - 66VCHSJNUP Tank Top
+          - 1YMWWN1N4O Watch
+          - L9ECAV7KIM Loafers
+          - 2ZYFJ3GM2N Hairdryer
+          - 0PUK6V6EV0 Candle Holder
+          - LS4PSXUNUM Salt & Pepper Shakers
+          - 9SIQT8TOJO Bamboo Glass Jar
+          - 6E92ZMYYFZ Mug
+        default: OLJCESPC7Z Sunglasses
+      new_price:
+        description: "New price in USD, e.g. 15.00 (empty = only show prices and cache logs)"
+        type: string
+        default: ""
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Read Terraform outputs
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          e() { jq -r --arg env "$ENVIRONMENT" ".outputs.environments.value[\$env].$1" state.json; }
+          {
+            echo "CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)"
+            echo "NS=$(e namespace)"
+            echo "DB_HOST=$(e db_host)"
+            echo "DB_PORT=$(e db_port)"
+            echo "DB_NAME=$(e db_name)"
+            echo "DB_SECRET_ARN=$(e db_secret_arn)"
+          } >> "$GITHUB_ENV"
+          rm -f state.json
+
+      - name: Connect kubectl to the cluster
+        run: aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+
+      # Database credentials: Secrets Manager -> short-lived Kubernetes Secret, through a
+      # private file (masked, never on a command line, never in the Summary).
+      - name: Database credentials for the query pod
+        run: |
+          aws secretsmanager get-secret-value --secret-id "$DB_SECRET_ARN" --query SecretString --output text > secret.json
+          echo "::add-mask::$(jq -r .password secret.json)"
+          umask 077
+          {
+            echo "DB_HOST=${DB_HOST}"
+            echo "DB_PORT=${DB_PORT}"
+            echo "DB_NAME=${DB_NAME}"
+            echo "DB_USER=$(jq -r .username secret.json)"
+            echo "MYSQL_PWD=$(jq -r .password secret.json)"
+          } > db.env
+          rm -f secret.json
+          kubectl -n "$NS" create secret generic catalog-query --from-env-file=db.env \
+            --dry-run=client -o yaml | kubectl apply -f -
+          rm -f db.env
+
+      - name: Catalog
+        env:
+          PRODUCT: ${{ inputs.product }}
+          NEW_PRICE: ${{ inputs.new_price }}
+        run: |
+          export PRODUCT_ID="${PRODUCT%% *}"
+          {
+            echo "### Catalog: ${{ inputs.environment }}"
+            echo '```'
+            bash deploy/catalog.sh
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean up
+        if: always()
+        run: |
+          kubectl -n "$NS" delete secret catalog-query --ignore-not-found || true
+          kubectl -n "$NS" delete job catalog-query --ignore-not-found --wait=false || true

@@ -71,6 +71,25 @@ spec:
         {{- end }}
         - name: EXTRA_LATENCY
           value: {{ .Values.productCatalogService.extraLatency }}
+        {{- with .Values.productCatalogService.catalog }}
+        {{- if .dbSecretArn }}
+        # Week 3: catalog from RDS MySQL with a Redis cache (AWS access via Pod Identity)
+        - name: AWS_REGION
+          value: {{ .awsRegion | quote }}
+        - name: DB_HOST
+          value: {{ required "productCatalogService.catalog.dbHost is required" .dbHost | quote }}
+        - name: DB_PORT
+          value: {{ .dbPort | quote }}
+        - name: DB_NAME
+          value: {{ .dbName | quote }}
+        - name: DB_SECRET_ARN
+          value: {{ .dbSecretArn | quote }}
+        - name: REDIS_ADDR
+          value: {{ .redisAddr | quote }}
+        - name: CATALOG_CACHE_TTL
+          value: {{ .cacheTtl | quote }}
+        {{- end }}
+        {{- end }}
         readinessProbe:
           grpc:
             port: 3550
