@@ -93,7 +93,12 @@ jobs:
                 tableName:    $e.inventory_table,
                 queueUrl:     $e.inventory_queue_url,
                 eventBusName: $e.event_bus_name
-              }
+              },
+              emailService:     { notifications: {
+                awsRegion: $region,
+                queueUrl:  $e.notification_queue_url,
+                tableName: $e.notifications_table
+              } }
             }' state.json > values-terraform.json
           cat values-terraform.json
 

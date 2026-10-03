@@ -9,3 +9,5 @@ requests==2.31.0
 opentelemetry-distro==0.40b0
 opentelemetry-instrumentation-grpc==0.40b0
 opentelemetry-exporter-otlp-proto-grpc==1.19.0
+# Week 3: SQS + DynamoDB for the notification consumer
+boto3==1.35.99

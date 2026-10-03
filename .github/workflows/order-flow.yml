@@ -48,6 +48,7 @@ jobs:
             echo "DB_NAME=$(e db_name)"
             echo "DB_SECRET_ARN=$(e db_secret_arn)"
             echo "INVENTORY_TABLE=$(e inventory_table)"
+            echo "NOTIFICATIONS_TABLE=$(e notifications_table)"
             echo "LAMBDA_NAME=$(e order_status_lambda)"
             echo "QUEUES_JSON=$(jq -c --arg env "$ENVIRONMENT" '.outputs.environments.value[$env] as $s
               | [$s.inventory_queue_url, $s.order_status_queue_url, $s.notification_queue_url] + [$s.dlq_urls[]]' state.json)"

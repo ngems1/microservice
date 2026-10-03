@@ -148,3 +148,8 @@ zipp==3.16.2
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+
+# Week 3: added by hand (not pip-compiled); pip installs its dependencies
+# (botocore, s3transfer, jmespath, python-dateutil) at build time.
+boto3==1.35.99
+    # via -r requirements.in
