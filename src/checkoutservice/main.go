@@ -295,10 +295,15 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		log.WithField("orderId", orderResult.OrderId).Error("order not recorded: order store not connected yet")
 	}
 
-	if err := cs.sendOrderConfirmation(ctx, req.Email, orderResult); err != nil {
-		log.Warnf("failed to send order confirmation to %q: %+v", req.Email, err)
-	} else {
-		log.Infof("order confirmation email sent to %q", req.Email)
+	// Week 3: with the event flow on, the email is no longer sent from here. emailservice
+	// sends it from OrderStatusUpdated, once inventory has confirmed (or refused) the
+	// order, so a customer is never told "confirmed" for an item that is out of stock.
+	if !cs.ordersWanted {
+		if err := cs.sendOrderConfirmation(ctx, req.Email, orderResult); err != nil {
+			log.Warnf("failed to send order confirmation to %q: %+v", req.Email, err)
+		} else {
+			log.Infof("order confirmation email sent to %q", req.Email)
+		}
 	}
 	resp := &pb.PlaceOrderResponse{Order: orderResult}
 	return resp, nil

@@ -98,6 +98,12 @@ currencyService:
 emailService:
   create: true
   name: emailservice
+  # Week 3: notification consumer. Empty = off (stock Online Boutique behaviour);
+  # the deploy workflow fills these from Terraform.
+  notifications:
+    awsRegion: us-east-1
+    queueUrl: ""     # SQS notification-q URL
+    tableName: ""    # DynamoDB notifications table
   resources:
     requests:
       cpu: 100m

@@ -1,0 +1,149 @@
+"""Unit tests for the notification consumer. Run: python -m unittest -v test_notifications
+
+In-memory fakes for DynamoDB, SQS and the logger: no AWS account or boto3 needed.
+"""
+import json
+import unittest
+
+import notifications as n
+
+
+def status_event(order_id="o-1", status="CONFIRMED", email="someone@example.com", **detail):
+    body = {"version": "1", "orderId": order_id, "status": status, "email": email,
+            "reason": "" if status == "CONFIRMED" else "INSUFFICIENT_STOCK", "productIds": [], **detail}
+    return json.dumps({"id": "evt-1", "detail-type": "OrderStatusUpdated",
+                       "source": "boutique.orderstatus", "detail": body})
+
+
+class FakeAwsError(Exception):
+    def __init__(self, code):
+        super().__init__(code)
+        self.response = {"Error": {"Code": code}}
+
+
+class FakeDynamo:
+    def __init__(self, fail=None):
+        self.items, self.fail = {}, fail
+
+    def put_item(self, TableName, Item, ConditionExpression=None):
+        if self.fail:
+            raise FakeAwsError(self.fail)
+        key = Item["notificationId"]["S"]
+        if ConditionExpression == "attribute_not_exists(notificationId)" and key in self.items:
+            raise FakeAwsError("ConditionalCheckFailedException")
+        self.items[key] = Item
+
+
+class FakeLogger:
+    def __init__(self):
+        self.lines = []
+
+    def _log(self, level, msg, extra=None, **_):
+        self.lines.append((level, msg, extra or {}))
+
+    def info(self, msg, extra=None, **kw):
+        self._log("info", msg, extra, **kw)
+
+    def warning(self, msg, extra=None, **kw):
+        self._log("warning", msg, extra, **kw)
+
+    def error(self, msg, extra=None, **kw):
+        self._log("error", msg, extra, **kw)
+
+    def exception(self, msg, extra=None, **kw):
+        self._log("exception", msg, extra, **kw)
+
+    def sent(self):
+        return [extra for level, msg, extra in self.lines if msg == "email sent"]
+
+
+class FakeSqs:
+    def __init__(self, bodies):
+        self.messages = [{"MessageId": f"m{i}", "ReceiptHandle": f"r{i}", "Body": b}
+                         for i, b in enumerate(bodies)]
+        self.deleted = []
+
+    def receive_message(self, **_):
+        batch, self.messages = self.messages, []
+        return {"Messages": batch}
+
+    def delete_message(self, QueueUrl, ReceiptHandle):
+        self.deleted.append(ReceiptHandle)
+
+
+class ParseTest(unittest.TestCase):
+    def test_valid_event(self):
+        order = n.parse_message(status_event(status="FAILED", productIds=["6E92ZMYYFZ"]))
+        self.assertEqual((order.order_id, order.status, order.reason), ("o-1", "FAILED", "INSUFFICIENT_STOCK"))
+        self.assertEqual(order.product_ids, ["6E92ZMYYFZ"])
+        self.assertEqual(order.notification_id, "o-1#FAILED")
+
+    def test_invalid_events(self):
+        for body in ["not json", "[]",
+                     json.dumps({"detail-type": "OrderCreated", "detail": {"version": "1"}}),
+                     status_event(version="2"), status_event(order_id=""), status_event(status="PENDING")]:
+            with self.subTest(body=body):
+                with self.assertRaises(n.InvalidEvent):
+                    n.parse_message(body)
+
+    def test_mask_email(self):
+        self.assertEqual(n.mask_email("someone@example.com"), "s*****e@example.com")
+        self.assertEqual(n.mask_email("ab@x.io"), "a*@x.io")
+        self.assertEqual(n.mask_email(""), "")
+
+    def test_render(self):
+        ok_subject, _ = n.render_email(n.parse_message(status_event(order_id="21b52dcc-be7a")))
+        self.assertEqual(ok_subject, "Your order 21b52dcc is confirmed")
+        _, failed_body = n.render_email(n.parse_message(status_event(status="FAILED", productIds=["MUG"])))
+        self.assertIn("out of stock (MUG)", failed_body)
+
+
+class HandleTest(unittest.TestCase):
+    def setUp(self):
+        self.ddb, self.logger = FakeDynamo(), FakeLogger()
+        self.log_table = n.NotificationLog(self.ddb, "notifications")
+
+    def test_sends_once_and_logs_masked_row(self):
+        self.assertEqual(n.handle(status_event(), self.log_table, self.logger), "sent")
+        row = self.ddb.items["o-1#CONFIRMED"]
+        self.assertEqual(row["recipient"]["S"], "s*****e@example.com")
+        self.assertEqual(row["delivery"]["S"], "log")
+        self.assertEqual(len(self.logger.sent()), 1)
+
+    def test_duplicate_event_sends_nothing(self):
+        n.handle(status_event(), self.log_table, self.logger)
+        self.assertEqual(n.handle(status_event(), self.log_table, self.logger), "duplicate")
+        self.assertEqual(len(self.logger.sent()), 1)
+
+    def test_confirmed_then_failed_are_two_notifications(self):
+        n.handle(status_event(status="CONFIRMED"), self.log_table, self.logger)
+        n.handle(status_event(status="FAILED"), self.log_table, self.logger)
+        self.assertEqual(set(self.ddb.items), {"o-1#CONFIRMED", "o-1#FAILED"})
+
+    def test_no_email_is_logged_not_sent(self):
+        self.assertEqual(n.handle(status_event(email=""), self.log_table, self.logger), "no-email")
+        self.assertEqual(self.logger.sent(), [])
+
+    def test_aws_error_propagates_for_retry(self):
+        log_table = n.NotificationLog(FakeDynamo(fail="ProvisionedThroughputExceededException"), "t")
+        with self.assertRaises(FakeAwsError):
+            n.handle(status_event(), log_table, self.logger)
+
+
+class ConsumerTest(unittest.TestCase):
+    def test_deletes_only_handled_messages(self):
+        sqs, logger = FakeSqs([status_event(), "garbage", status_event()]), FakeLogger()
+        consumer = n.Consumer(sqs, "q", n.NotificationLog(FakeDynamo(), "t"), logger)
+        self.assertEqual(consumer.poll_once(wait_seconds=0), ["sent", "invalid", "duplicate"])
+        self.assertEqual(sqs.deleted, ["r0", "r2"])  # the invalid one stays: retried, then DLQ
+        self.assertTrue(consumer.healthy())
+
+    def test_aws_error_keeps_message(self):
+        sqs = FakeSqs([status_event()])
+        consumer = n.Consumer(sqs, "q", n.NotificationLog(FakeDynamo(fail="InternalServerError"), "t"), FakeLogger())
+        self.assertEqual(consumer.poll_once(wait_seconds=0), ["error"])
+        self.assertEqual(sqs.deleted, [])
+
+
+if __name__ == "__main__":
+    unittest.main()

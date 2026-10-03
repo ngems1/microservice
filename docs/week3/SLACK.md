@@ -37,7 +37,7 @@ Messages: :red_circle: **ALARM** when an alarm fires, :large_green_circle: **OK*
 |---|---|
 | `week3-boutique-<env>-<flow>-dlq-not-empty` | A message failed 3 times and is in a dead-letter queue |
 | `week3-boutique-<env>-<flow>-backlog` | A queue is backing up |
-| `week3-boutique-<env>-order-status-lambda-errors` | The order-status Lambda throws errors |
+| `week3-boutique-<env>-order-status-lambda-errors` | The order-status Lambda itself crashes (timeout, out of memory, bad deployment). A message it can't process is not a crash: it is reported back to SQS, retried, and ends in the DLQ (alarm above) |
 
 Why not Amazon Q Developer in chat applications (AWS Chatbot)? Its one-time Slack authorization needs `chatbot:*` permissions in the console, which this account's IAM user doesn't have. The Lambda route needs only what the pipeline already has.
 
@@ -49,7 +49,7 @@ Send an order that doesn't exist: **EventBridge → Event buses → Send events*
 {"version":"1","orderId":"console-test-001","email":"someone@example.com","items":[{"productId":"OLJCESPC7Z","quantity":1}]}
 ```
 
-inventoryservice reserves it, the order-status Lambda can't find it in MySQL and fails 3 times, the message lands in `week3-boutique-dev-order-status-dlq`. Within about 5 minutes `#boutique-alerts` shows **ALARM** for `...-order-status-lambda-errors` and `...-order-status-dlq-not-empty`.
+inventoryservice reserves it, the order-status Lambda can't find it in MySQL and fails 3 times, the message lands in `week3-boutique-dev-order-status-dlq`. `#boutique-alerts` then shows **ALARM** for `...-order-status-dlq-not-empty`. Expect **5 to 15 minutes**: 3 attempts 60 s apart, then SQS starts publishing metrics for a queue that was idle (it pauses them after 6 idle hours), then the alarm evaluates.
 
 Clean up: **SQS → order-status-dlq → Purge** (the alarm goes back to OK and Slack shows it), then in DynamoDB set `PRODUCT#OLJCESPC7Z` stock back and delete `RESERVATION#console-test-001`.
 

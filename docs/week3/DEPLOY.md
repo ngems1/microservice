@@ -73,5 +73,6 @@ Until then, inventoryservice runs and seeds its stock, but no orders reach it.
    - **Reservations (DynamoDB):** `RESERVED` or `FAILED` for each order, plus the current stock
    - **Queues:** messages waiting or in flight. A dead-letter queue above 0 means a consumer is failing.
    - **Lambda logs:** each status change, with its order ID
+   - **Notifications:** the email emailservice sent for each final status (one row per order and status, recipient masked). In log mode the email itself is in emailservice's log: search `email sent` in CloudWatch Logs Insights.
 
 For pods and events, use **Actions > cluster-status**.

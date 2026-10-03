@@ -41,6 +41,12 @@ import googlecloudprofiler
 from logger import getJSONLogger
 logger = getJSONLogger('emailservice-server')
 
+# Week 3: notification consumer (notification-q -> email + DynamoDB log). On when
+# NOTIFICATION_QUEUE_URL and NOTIFICATIONS_TABLE are set; see notifications.py.
+NOTIFICATION_QUEUE_URL = os.environ.get('NOTIFICATION_QUEUE_URL', '')
+NOTIFICATIONS_TABLE = os.environ.get('NOTIFICATIONS_TABLE', '')
+consumer = None
+
 # Loads confirmation email template from file
 env = Environment(
     loader=FileSystemLoader('templates'),
@@ -50,6 +56,10 @@ template = env.get_template('confirmation.html')
 
 class BaseEmailService(demo_pb2_grpc.EmailServiceServicer):
   def Check(self, request, context):
+    # Week 3: not ready while the notification consumer has stopped polling.
+    if consumer is not None and not consumer.healthy():
+      return health_pb2.HealthCheckResponse(
+        status=health_pb2.HealthCheckResponse.NOT_SERVING)
     return health_pb2.HealthCheckResponse(
       status=health_pb2.HealthCheckResponse.SERVING)
   
@@ -114,6 +124,22 @@ class HealthCheck():
     return health_pb2.HealthCheckResponse(
       status=health_pb2.HealthCheckResponse.SERVING)
 
+def start_notification_consumer():
+  """Week 3: consume notification-q in a background thread (AWS creds from EKS Pod Identity)."""
+  global consumer
+  if not (NOTIFICATION_QUEUE_URL and NOTIFICATIONS_TABLE):
+    logger.info('notification consumer disabled (NOTIFICATION_QUEUE_URL / NOTIFICATIONS_TABLE not set)')
+    return
+  import threading
+  import boto3
+  import notifications
+  session = boto3.session.Session(region_name=os.environ.get('AWS_REGION', 'us-east-1'))
+  consumer = notifications.Consumer(
+    session.client('sqs'), NOTIFICATION_QUEUE_URL,
+    notifications.NotificationLog(session.client('dynamodb'), NOTIFICATIONS_TABLE), logger)
+  consumer.last_poll = time.time()  # healthy while the first long poll starts
+  threading.Thread(target=consumer.run, name='notification-consumer', daemon=True).start()
+
 def start(dummy_mode):
   server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),)
   service = None
@@ -129,10 +155,13 @@ def start(dummy_mode):
   logger.info("listening on port: "+port)
   server.add_insecure_port('[::]:'+port)
   server.start()
+  start_notification_consumer()
   try:
     while True:
       time.sleep(3600)
   except KeyboardInterrupt:
+    if consumer is not None:
+      consumer.stopping = True
     server.stop(0)
 
 def initStackdriverProfiling():

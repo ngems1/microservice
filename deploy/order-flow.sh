@@ -4,8 +4,9 @@
 #   2. reservations in DynamoDB written by inventoryservice, and current stock
 #   3. SQS queues and dead-letter queues (messages waiting / in flight)
 #   4. the order-status Lambda's recent logs
+#   5. notifications sent by emailservice (DynamoDB notifications table)
 # Needs kubectl on the cluster and AWS credentials, plus (from the Terraform outputs):
-#   NS INVENTORY_TABLE QUEUES_JSON LAMBDA_NAME, and the Secret "order-flow-query"
+#   NS INVENTORY_TABLE QUEUES_JSON LAMBDA_NAME (NOTIFICATIONS_TABLE optional), and the Secret "order-flow-query"
 #   (DB_HOST, DB_PORT, DB_NAME, DB_USER, MYSQL_PWD) in the namespace
 set -u
 : "${NS:?}" "${INVENTORY_TABLE:?}" "${QUEUES_JSON:?}" "${LAMBDA_NAME:?}"
@@ -115,4 +116,13 @@ echo "(a dead-letter queue (-dlq) above 0 means messages failed 3 times: see the
 echo
 echo "=== 4. order-status Lambda, last 30 minutes ==="
 aws logs tail "/aws/lambda/${LAMBDA_NAME}" --since 30m --format short 2>&1 | tail -30
+
+if [ -n "${NOTIFICATIONS_TABLE:-}" ]; then
+  echo
+  echo "=== 5. Notifications sent by emailservice (DynamoDB ${NOTIFICATIONS_TABLE}) ==="
+  echo "(one row per order and final status; a duplicate event never sends a second email)"
+  aws dynamodb scan --table-name "$NOTIFICATIONS_TABLE" \
+    --query 'sort_by(Items, &sentAt.S)[-10:].[sentAt.S, orderId.S, status.S, recipient.S, subject.S]' \
+    --output table 2>&1
+fi
 exit 0

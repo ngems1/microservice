@@ -32,7 +32,12 @@ spec:
       {{- else }}
       serviceAccountName: default
       {{- end }}
+      {{- if .Values.emailService.notifications.queueUrl }}
+      # Week 3: the notification consumer long-polls for 20 s; let it finish its batch
+      terminationGracePeriodSeconds: 30
+      {{- else }}
       terminationGracePeriodSeconds: 5
+      {{- end }}
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -57,6 +62,17 @@ spec:
         env:
         - name: PORT
           value: "8080"
+        {{- with .Values.emailService.notifications }}
+        {{- if .queueUrl }}
+        # Week 3: consume notification-q, log every email in DynamoDB (AWS access via Pod Identity)
+        - name: AWS_REGION
+          value: {{ .awsRegion | quote }}
+        - name: NOTIFICATION_QUEUE_URL
+          value: {{ .queueUrl | quote }}
+        - name: NOTIFICATIONS_TABLE
+          value: {{ required "emailService.notifications.tableName is required with queueUrl" .tableName | quote }}
+        {{- end }}
+        {{- end }}
         {{- if .Values.opentelemetryCollector.create }}
         - name: COLLECTOR_SERVICE_ADDR
           value: "{{ .Values.opentelemetryCollector.name }}:4317"
