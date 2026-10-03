@@ -251,6 +251,10 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 
 	prep, err := cs.prepareOrderItemsAndShippingQuoteFromCart(ctx, req.UserId, req.UserCurrency, req.Address)
 	if err != nil {
+		if isEmptyCart(err) {
+			log.Warnf("[PlaceOrder] rejected for user_id=%q: the cart is empty", req.UserId)
+			return nil, status.Errorf(codes.InvalidArgument, "cannot place the order: the cart is empty")
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -320,6 +324,9 @@ func (cs *checkoutService) prepareOrderItemsAndShippingQuoteFromCart(ctx context
 	cartItems, err := cs.getUserCart(ctx, userID)
 	if err != nil {
 		return out, fmt.Errorf("cart failure: %+v", err)
+	}
+	if err := checkCartNotEmpty(cartItems); err != nil {
+		return out, err // Week 3: nothing is charged for an empty cart (cart.go)
 	}
 	orderItems, err := cs.prepOrderItems(ctx, cartItems, userCurrency)
 	if err != nil {
