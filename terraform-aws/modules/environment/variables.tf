@@ -34,7 +34,7 @@ variable "private_subnet_ids" {
 
 variable "db_instance_class" {
   type    = string
-  default = "db.t4g.micro"
+  default = "db.t3.micro"
 }
 
 variable "db_multi_az" {
