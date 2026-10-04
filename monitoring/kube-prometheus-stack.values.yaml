@@ -93,14 +93,21 @@ grafana:
     analytics:
       reporting_enabled: false
       check_for_updates: false
+    # The image already contains the data source plugins we use (Prometheus, CloudWatch...).
+    # By default Grafana also tries at startup to update these bundled plugins from the
+    # internet: it stops the plugin, then fails to replace it on the read-only disk
+    # ("unlinkat ... plugins-bundled ... read-only file system"), and the plugin stays
+    # stopped. That is why the Prometheus data source was "not found". No updates at
+    # runtime: plugin versions change only when the Grafana image changes.
+    plugins:
+      preinstall_disabled: true
+      preinstall_auto_update: false
   resources:
     requests: { cpu: 50m, memory: 128Mi }
     limits: { memory: 384Mi }
   defaultDashboardsTimezone: browser
-  # No "plugins:" list here. The Grafana image already contains the Prometheus plugin
-  # (/usr/share/grafana/data/plugins-bundled/prometheus). Listing it under "plugins"
-  # makes Grafana try to replace that copy at startup, which fails on the read-only
-  # image disk ("unlinkat ... read-only file system") and Grafana exits.
+  # No "plugins:" list here either: it would make Grafana replace a bundled plugin at
+  # startup, fail on the read-only disk and exit (see grafana.ini > plugins above).
   # Both data sources are created here, with fixed IDs the dashboard uses. The chart's
   # automatic Prometheus data source is turned off (it was not created in the installed
   # chart version, and two data sources with the same ID would conflict).
