@@ -32,6 +32,14 @@ echo
 echo "=== ${ns}: containers that restarted (last exit) ==="
 kubectl -n "$ns" get pods -o custom-columns='POD:.metadata.name,RESTARTS:.status.containerStatuses[*].restartCount,LAST_REASON:.status.containerStatuses[*].lastState.terminated.reason,EXIT_CODE:.status.containerStatuses[*].lastState.terminated.exitCode,STOPPED_AT:.status.containerStatuses[*].lastState.terminated.finishedAt' 2>&1 | awk 'NR==1 || $2 ~ /[1-9]/'
 kubectl -n "$ns" get events --field-selector reason=Unhealthy 2>/dev/null | grep -i liveness | tail -10
+# HPAs at <unknown>: is the metrics API answering, and on which port do its pods listen?
+if [ "$ns" = kube-system ]; then
+  echo
+  echo "=== metrics API (used by the HPAs) ==="
+  kubectl get apiservice v1beta1.metrics.k8s.io -o jsonpath='{range .status.conditions[*]}{.type}={.status} {.reason}: {.message}{"\n"}{end}' 2>&1
+  kubectl -n kube-system get pods -l app.kubernetes.io/name=metrics-server -o jsonpath='{range .items[*]}{.metadata.name}{" ports="}{.spec.containers[*].ports[*].containerPort}{"\n"}{end}' 2>&1
+  kubectl top nodes 2>&1 | head -6
+fi
 # Grafana runs even when a plugin fails to load, so its pod looks healthy:
 # show its plugin messages and the container setup (read-only disk, mounted folders).
 if [ "$ns" = monitoring ]; then

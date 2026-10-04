@@ -65,6 +65,20 @@ module "eks" {
     }
   }
 
+  # The EKS metrics-server add-on listens on port 10251 on its pods. The Kubernetes API
+  # (control plane) must reach it there, otherwise "kubectl top" and the HPAs get
+  # "unable to fetch metrics from resource metrics API" and stay at <unknown>.
+  node_security_group_additional_rules = {
+    ingress_cluster_metrics_server = {
+      description                   = "Cluster API to metrics-server (EKS add-on) 10251/tcp"
+      protocol                      = "tcp"
+      from_port                     = 10251
+      to_port                       = 10251
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+  }
+
   eks_managed_node_groups = {
     default = {
       ami_type       = "AL2023_x86_64_STANDARD"
