@@ -97,13 +97,10 @@ grafana:
     requests: { cpu: 50m, memory: 128Mi }
     limits: { memory: 384Mi }
   defaultDashboardsTimezone: browser
-  # Since Grafana 12.3 the Prometheus data source is no longer built in: it is a separate
-  # plugin from the Grafana catalog. Without it, the "Prometheus" data source below exists
-  # but cannot be used (not listed in Explore, dashboard panels show a warning). Grafana
-  # installs the plugins listed here at every start (the pod has no disk, so a plugin
-  # installed by clicking in the UI is lost at the next restart).
-  plugins:
-    - prometheus
+  # No "plugins:" list here. The Grafana image already contains the Prometheus plugin
+  # (/usr/share/grafana/data/plugins-bundled/prometheus). Listing it under "plugins"
+  # makes Grafana try to replace that copy at startup, which fails on the read-only
+  # image disk ("unlinkat ... read-only file system") and Grafana exits.
   # Both data sources are created here, with fixed IDs the dashboard uses. The chart's
   # automatic Prometheus data source is turned off (it was not created in the installed
   # chart version, and two data sources with the same ID would conflict).
