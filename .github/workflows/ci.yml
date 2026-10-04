@@ -97,6 +97,9 @@ jobs:
               > "rendered-${env}.yaml"
             echo "${env}: $(grep -c '^kind:' "rendered-${env}.yaml") objects"
             grep '^kind:' "rendered-${env}.yaml" | sort | uniq -c
+            # Autoscaling is on for EKS: the HPAs must be in the rendered chart.
+            grep -q '^kind: HorizontalPodAutoscaler' "rendered-${env}.yaml" \
+              || { echo "::error::${env}: no HorizontalPodAutoscaler rendered"; exit 1; }
           done
 
   build:

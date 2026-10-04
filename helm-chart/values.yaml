@@ -61,7 +61,7 @@ cartService:
       cpu: 200m
       memory: 64Mi
     limits:
-      cpu: 300m
+      cpu: 500m      # Week 3: was 300m (CPU-throttled in the stress test)
       memory: 128Mi
 
 checkoutService:
@@ -92,7 +92,7 @@ currencyService:
       cpu: 100m
       memory: 64Mi
     limits:
-      cpu: 200m
+      cpu: 500m      # Week 3: was 200m (CPU-throttled in the stress test)
       memory: 128Mi
 
 emailService:
@@ -164,7 +164,7 @@ frontend:
       cpu: 100m
       memory: 64Mi
     limits:
-      cpu: 200m
+      cpu: 500m      # Week 3: was 200m (CPU-throttled in the stress test)
       memory: 128Mi
 
 loadGenerator:
@@ -210,7 +210,7 @@ productCatalogService:
       cpu: 100m
       memory: 64Mi
     limits:
-      cpu: 200m
+      cpu: 500m      # Week 3: was 200m (CPU-throttled in the stress test)
       memory: 128Mi
 
 recommendationService:
@@ -221,7 +221,7 @@ recommendationService:
       cpu: 100m
       memory: 220Mi
     limits:
-      cpu: 200m
+      cpu: 500m      # Week 3: was 200m (CPU-throttled in the stress test)
       memory: 450Mi
 
 shippingService:
@@ -250,3 +250,14 @@ cartDatabase:
     endpointAddress: ""
     endpointPort: ""
     certificate: ""
+
+# Week 3: HorizontalPodAutoscaler (templates/hpa.yaml). Off by default (local runs);
+# turned on for EKS in values-aws.yaml. Needs metrics-server (EKS add-on in Terraform).
+autoscaling:
+  enabled: false
+  # Add replicas when the average CPU of the pods goes above this % of their CPU *request*.
+  targetCPUUtilization: 70
+  # Wait this long at lower CPU before removing replicas (avoids flapping).
+  scaleDownStabilizationSeconds: 120
+  # Deployment name -> replica range. The Deployments must not set "replicas" themselves.
+  targets: {}

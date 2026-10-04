@@ -1,0 +1,39 @@
+{{- /*
+Week 3: one HorizontalPodAutoscaler per entry of .Values.autoscaling.targets.
+It adds pods when their average CPU goes above targetCPUUtilization % of the CPU
+request, and removes them again after scaleDownStabilizationSeconds of lower CPU.
+The CPU numbers come from metrics-server (EKS add-on, see terraform-aws/eks.tf).
+*/ -}}
+{{- if .Values.autoscaling.enabled }}
+{{- range $name, $range := .Values.autoscaling.targets }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $name }}
+  minReplicas: {{ $range.min }}
+  maxReplicas: {{ $range.max }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ $.Values.autoscaling.targetCPUUtilization }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Pods
+        value: 2              # at most 2 new pods...
+        periodSeconds: 30     # ...every 30 s
+    scaleDown:
+      stabilizationWindowSeconds: {{ $.Values.autoscaling.scaleDownStabilizationSeconds }}
+{{- end }}
+{{- end }}

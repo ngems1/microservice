@@ -23,6 +23,15 @@ for pod in $(kubectl -n "$ns" get pods --no-headers 2>/dev/null | awk '$3 != "Co
   echo "=== ${pod}: logs before the last restart ==="
   kubectl -n "$ns" logs "$pod" --all-containers --previous --tail=40 2>/dev/null || echo "(none)"
 done
+echo
+echo "=== ${ns}: autoscalers (current/target CPU, replicas) ==="
+kubectl -n "$ns" get hpa 2>&1
+# A pod can be Ready again after a restart, so the loop above skips it: show why each
+# container last stopped (OOMKilled = memory limit, Error/exit 137 + probe events = liveness).
+echo
+echo "=== ${ns}: containers that restarted (last exit) ==="
+kubectl -n "$ns" get pods -o custom-columns='POD:.metadata.name,RESTARTS:.status.containerStatuses[*].restartCount,LAST_REASON:.status.containerStatuses[*].lastState.terminated.reason,EXIT_CODE:.status.containerStatuses[*].lastState.terminated.exitCode,STOPPED_AT:.status.containerStatuses[*].lastState.terminated.finishedAt' 2>&1 | awk 'NR==1 || $2 ~ /[1-9]/'
+kubectl -n "$ns" get events --field-selector reason=Unhealthy 2>/dev/null | grep -i liveness | tail -10
 # Grafana runs even when a plugin fails to load, so its pod looks healthy:
 # show its plugin messages and the container setup (read-only disk, mounted folders).
 if [ "$ns" = monitoring ]; then
