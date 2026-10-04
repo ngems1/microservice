@@ -35,6 +35,11 @@ func initializeLogger() {
 
 func loadDeploymentDetails() {
 	deploymentDetailsMap = make(map[string]string)
+	// Week 3: the release shown in the footer (the commit SHA the image was built from,
+	// baked in by the Dockerfile). Makes a deployment or a rollback visible in the shop.
+	if v := os.Getenv("APP_VERSION"); v != "" {
+		deploymentDetailsMap["VERSION"] = v
+	}
 	var metaServerClient = metadata.NewClient(&http.Client{})
 
 	podHostname, err := os.Hostname()

@@ -40,5 +40,10 @@ COPY ./static ./static
 # See https://golang.org/pkg/runtime/
 ENV GOTRACEBACK=single
 
+# Week 3: the commit SHA this image was built from (set by the deploy workflow),
+# shown in the shop's footer so a deployment or a rollback is visible.
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
+
 EXPOSE 8080
 ENTRYPOINT ["/src/server"]

@@ -29,6 +29,9 @@
                 <br/>
                 <small>
                     {{ if $.deploymentDetails }}
+                        {{ if index .deploymentDetails "VERSION" }}
+                        <b>Version: </b>{{ index .deploymentDetails "VERSION" }}<br/>
+                        {{ end }}
                         {{ if index .deploymentDetails "CLUSTERNAME" }}
                         <b>Cluster: </b>{{ index .deploymentDetails "CLUSTERNAME" }}<br/>
                         {{ end }}

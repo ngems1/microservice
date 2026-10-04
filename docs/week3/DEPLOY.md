@@ -75,6 +75,24 @@ Check: Actions -> cluster-status -> `boutique-dev` ("autoscalers" and "container
 restarted"), and the Nodes step (`MAX_PODS` 110). In Grafana, "CPU by pod" shows the
 extra pods during a stress test.
 
+## Rollback demo (acceptance test step 12)
+
+Every deploy builds all images with the commit SHA as tag (immutable in ECR), and the
+shop's footer shows that SHA as **Version**. A rollback is a redeploy of an older tag,
+without building anything:
+
+1. Note the version in the footer (and in the Slack "Deployed `<sha>`" message): **v1**.
+2. Merge any change that deploys: the footer now shows **v2**.
+3. Actions > deploy > Run workflow: `image_tag` = the v1 SHA, `target` = `dev-only`.
+   The setup job checks that all 12 images exist with that tag, then Helm deploys them.
+4. Reload the shop: the footer shows **v1** again.
+5. Evidence: Actions > cluster-status > `boutique-dev`, step "Helm history": one revision
+   per deploy, the last one running the v1 image.
+
+Automatic rollback also exists: an upgrade whose pods don't become ready within 10 min is
+rolled back by Helm (`--rollback-on-failure`), and a failed smoke test redeploys the
+previous revision.
+
 ## Follow an order through the event flow
 
 1. Place an order in the shop (dev or prod link from the deploy run's Summary). To see the failure path in dev, order 3 mugs: dev only has 2.

@@ -160,6 +160,7 @@ jobs:
           push: true
           provenance: false # one plain image manifest, which ECR scanning reads directly
           tags: ${{ env.IMAGE }}
+          build-args: APP_VERSION=${{ needs.setup.outputs.tag }} # shown in the frontend footer
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
