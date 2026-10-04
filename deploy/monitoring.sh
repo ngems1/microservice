@@ -29,10 +29,14 @@ for f in monitoring/dashboards/*.json; do
     | kubectl apply --server-side --force-conflicts -f -
 done
 
-helm upgrade --install monitoring kube-prometheus-stack \
+if ! helm upgrade --install monitoring kube-prometheus-stack \
   --repo https://prometheus-community.github.io/helm-charts --version "$KPS_VERSION" \
   --namespace "$NS" -f monitoring/kube-prometheus-stack.values.yaml \
-  --wait=watcher --timeout 10m
+  --wait=watcher --timeout 10m; then
+  # Show why (pods not ready, events, logs) directly in this log.
+  bash deploy/diagnose.sh "$NS"
+  exit 1
+fi
 echo "kube-prometheus-stack: $(helm -n "$NS" list -f '^monitoring$' -o json | jq -r '.[0].chart')"
 # Restart Grafana so it always loads the current data sources (and its Pod Identity
 # credentials, if the IAM link was created after the pod). A few seconds of downtime.
