@@ -97,7 +97,20 @@ grafana:
     requests: { cpu: 50m, memory: 128Mi }
     limits: { memory: 384Mi }
   defaultDashboardsTimezone: browser
+  # Both data sources are created here, with fixed IDs the dashboard uses. The chart's
+  # automatic Prometheus data source is turned off (it was not created in the installed
+  # chart version, and two data sources with the same ID would conflict).
   additionalDataSources:
+    - name: Prometheus
+      uid: prometheus
+      type: prometheus
+      access: proxy
+      # "prometheus-operated" is the Service the Prometheus Operator creates for every
+      # Prometheus in this namespace: its name does not depend on the chart version.
+      url: http://prometheus-operated.monitoring.svc:9090
+      isDefault: true
+      jsonData:
+        timeInterval: 30s          # = scrapeInterval
     - name: CloudWatch
       uid: cloudwatch
       type: cloudwatch
@@ -106,6 +119,8 @@ grafana:
         authType: default          # AWS SDK default chain = EKS Pod Identity
         defaultRegion: us-east-1
   sidecar:
+    datasources:
+      defaultDatasourceEnabled: false   # replaced by the Prometheus entry above
     dashboards:
       enabled: true
       label: grafana_dashboard

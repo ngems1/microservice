@@ -69,6 +69,7 @@ Extra cost while running: the 4th node (~$1/day) and Grafana's ALB (~$0.55/day).
 |---|---|
 | `monitoring` job skipped | The `GRAFANA_ADMIN_PASSWORD` secret is missing |
 | Grafana URL times out | Your IP is not in `MONITORING_ALLOWED_CIDR`, or the ALB is still starting (2-3 min) |
-| CloudWatch panels empty | Grafana pod restarted after the Pod Identity link? `kubectl -n monitoring rollout restart deploy/monitoring-grafana` (or re-run deploy). ALB metrics only appear once the shop gets traffic. |
+| CloudWatch panels empty | ALB metrics only appear once the shop gets traffic; use a time range of 30 min or more. Re-running deploy restarts Grafana (fresh AWS credentials). |
+| "Datasource prometheus was not found" | The data sources are created by `monitoring/kube-prometheus-stack.values.yaml` (`additionalDataSources`); re-run deploy, it restarts Grafana to load them |
 | Application panels empty | Prometheus → Status → Targets: job `kubernetes-pods` should list inventoryservice and productcatalogservice as UP |
 | Pods `Pending` | Not enough pod slots: the cluster needs its 4th node (see above) |
