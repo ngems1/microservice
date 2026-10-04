@@ -29,7 +29,7 @@ variable "node_instance_types" {
 }
 
 variable "node_desired_size" {
-  description = "Number of worker nodes. A t3.medium runs at most 17 pods (VPC CNI limit): 4 nodes fit both environments, the system pods, monitoring and a load test."
+  description = "Number of worker nodes. With VPC CNI prefix delegation (eks.tf) a t3.medium runs up to 110 pods, so CPU/memory, not the pod count, is the limit: 4 nodes fit both environments with autoscaling, monitoring and a load test."
   type        = number
   default     = 4
 }

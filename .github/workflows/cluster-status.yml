@@ -40,7 +40,12 @@ jobs:
           rm -f state.json
 
       - name: Nodes
-        run: kubectl get nodes -o wide && kubectl top nodes 2>/dev/null || true
+        run: |
+          kubectl get nodes -o wide
+          # Pod limit per node (17 without VPC CNI prefix delegation, 110 with it) and pods running.
+          kubectl get nodes -o custom-columns='NODE:.metadata.name,MAX_PODS:.status.allocatable.pods'
+          kubectl get pods -A --field-selector=status.phase=Running -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort | uniq -c | sed 's/^/  pods running on /'
+          kubectl top nodes 2>/dev/null || true
 
       - name: Helm releases
         run: helm list -A 2>/dev/null || true

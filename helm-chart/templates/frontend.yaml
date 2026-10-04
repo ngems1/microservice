@@ -56,6 +56,7 @@ spec:
           ports:
           - containerPort: 8080
           readinessProbe:
+            timeoutSeconds: 3
             initialDelaySeconds: 10
             httpGet:
               path: "/_healthz"
@@ -64,6 +65,10 @@ spec:
               - name: "Cookie"
                 value: "shop_session-id=x-readiness-probe"
           livenessProbe:
+            # Week 3: under heavy load a CPU-throttled pod answers its health check slowly;
+            # the defaults (1 s timeout, 3 failures) can then restart a pod that is only busy.
+            timeoutSeconds: 5
+            failureThreshold: 6
             initialDelaySeconds: 10
             httpGet:
               path: "/_healthz"

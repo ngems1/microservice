@@ -102,9 +102,14 @@ spec:
         {{- end }}
         {{- end }}
         readinessProbe:
+          timeoutSeconds: 3
           grpc:
             port: 3550
         livenessProbe:
+          # Week 3: under heavy load a CPU-throttled pod answers its health check slowly;
+          # the defaults (1 s timeout, 3 failures) can then restart a pod that is only busy.
+          timeoutSeconds: 5
+          failureThreshold: 6
           grpc:
             port: 3550
         resources:

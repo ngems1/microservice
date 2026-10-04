@@ -26,9 +26,21 @@ module "eks" {
       most_recent    = true
       before_compute = true
       # Enforce Kubernetes NetworkPolicies (blocks traffic between boutique-dev and boutique-prod).
+      # Prefix delegation: each node gets /28 IP blocks instead of single IPs, so a
+      # t3.medium runs up to 110 pods instead of 17 (the limit behind "Too many pods").
+      # EKS sets the nodes' pod limit from this when the node group is created, so it
+      # takes effect on a new cluster (infra destroy + apply) or new nodes.
       configuration_values = jsonencode({
         enableNetworkPolicy = "true"
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
       })
+    }
+    # CPU/memory numbers per pod for the HorizontalPodAutoscaler (and "kubectl top").
+    metrics-server = {
+      most_recent = true
     }
     eks-pod-identity-agent = {
       most_recent    = true

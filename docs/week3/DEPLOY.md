@@ -54,15 +54,26 @@ helm -n boutique-dev rollback boutique <revision>   # manual rollback
 kubectl -n boutique-dev logs deploy/inventoryservice
 ```
 
-## Not wired yet
+## Autoscaling (HPA)
 
-The pipeline deploys everything, but three code changes are still to come:
+The first stress test (800 shoppers, 15 min, one pod per service) ended with 0 errors
+but p95 around 8 s and only ~130 requests/s: the busiest pods were stuck at their CPU
+limit while the nodes stayed around 40% CPU. So:
 
-- checkoutservice publishing `OrderCreated` and saving the order in MySQL
-- productcatalogservice reading MySQL through Redis
-- emailservice consuming `notification-q`
+- `helm-chart/templates/hpa.yaml` + `autoscaling` in `values-aws.yaml`: a
+  HorizontalPodAutoscaler for frontend, currencyservice (1-4 pods), productcatalogservice,
+  cartservice and recommendationservice (1-3 pods). It adds pods above 70% of the CPU
+  request and removes them after 2 minutes of lower CPU.
+- metrics-server (EKS add-on in `terraform-aws/eks.tf`) gives the HPA its CPU numbers.
+- VPC CNI prefix delegation (`eks.tf`): up to 110 pods per t3.medium instead of 17, so
+  the extra replicas are not stuck in "Too many pods". Applies to new nodes, i.e. after
+  `infra -> destroy` + `infra -> apply`.
+- Higher CPU limits for those five services and more tolerant health checks (5 s
+  timeout, 6 failures), so a busy pod is not restarted for answering slowly.
 
-Until then, inventoryservice runs and seeds its stock, but no orders reach it.
+Check: Actions -> cluster-status -> `boutique-dev` ("autoscalers" and "containers that
+restarted"), and the Nodes step (`MAX_PODS` 110). In Grafana, "CPU by pod" shows the
+extra pods during a stress test.
 
 ## Follow an order through the event flow
 
