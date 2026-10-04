@@ -1,0 +1,75 @@
+name: chaos
+
+# Break one thing in dev on purpose and watch the platform recover (plan, day 5:
+# "test pod failure, consumer failure"). Only ever touches boutique-dev, and always
+# puts things back at the end, even if the run fails halfway.
+#   pod-failure       delete a pod: Kubernetes recreates it; the shop is checked meanwhile
+#   consumer-failure  stop inventoryservice for a few minutes while orders keep coming:
+#                     inventory-q fills up, the backlog alarm goes to Slack, then the
+#                     consumer comes back and processes everything (no message lost)
+# Results are on the run's Summary page. Watch Grafana (Event flow, Kubernetes) meanwhile.
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "What to break (in dev)"
+        type: choice
+        options: [pod-failure, consumer-failure]
+        default: pod-failure
+      service:
+        description: "pod-failure: which service's pod to delete"
+        type: choice
+        options: [frontend, checkoutservice, cartservice, productcatalogservice, currencyservice, recommendationservice]
+        default: checkoutservice
+      outage_minutes:
+        description: "consumer-failure: minutes without consumer (8+ makes the Slack alarm fire)"
+        type: choice
+        options: ["3", "8", "12"]
+        default: "8"
+
+permissions:
+  id-token: write # GitHub OIDC -> AWS
+  contents: read
+
+# Never at the same time as a deployment (same group as the deploy workflow).
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  chaos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Read Terraform outputs (dev)
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          {
+            echo "CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)"
+            echo "NS=$(jq -r '.outputs.environments.value.dev.namespace' state.json)"
+            echo "INVENTORY_QUEUE_URL=$(jq -r '.outputs.environments.value.dev.inventory_queue_url' state.json)"
+            echo "DLQ_URLS_JSON=$(jq -c '[.outputs.environments.value.dev.dlq_urls[]]' state.json)"
+          } >> "$GITHUB_ENV"
+          rm -f state.json
+
+      - name: Connect kubectl to the cluster
+        run: aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+
+      - name: Chaos
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+          SERVICE: ${{ inputs.service }}
+          OUTAGE_MINUTES: ${{ inputs.outage_minutes }}
+        run: bash deploy/chaos.sh

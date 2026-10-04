@@ -93,6 +93,16 @@ Automatic rollback also exists: an upgrade whose pods don't become ready within 
 rolled back by Helm (`--rollback-on-failure`), and a failed smoke test redeploys the
 previous revision.
 
+## Chaos tests (break it on purpose, in dev)
+
+Actions > chaos > Run workflow. Only touches `boutique-dev`, and puts everything back at
+the end, even if the run fails halfway. Results on the run's Summary page.
+
+| Scenario | What happens | What to watch |
+|---|---|---|
+| `pod-failure` | Deletes the pod of the chosen service | New pod Ready after a few seconds; shop checked every 2 s through the ALB (a single replica gives a short gap) |
+| `consumer-failure` | inventoryservice at 0 replicas for 3/8/12 min while 4 simulated shoppers order | Grafana > Event flow: inventory-q grows; with 8+ min the backlog alarm goes 🔴 to #boutique-alerts; after the restart the queue empties, orders become CONFIRMED (order-flow), alarm 🟢, DLQs stay at 0 |
+
 ## Follow an order through the event flow
 
 1. Place an order in the shop (dev or prod link from the deploy run's Summary). To see the failure path in dev, order 3 mugs: dev only has 2.
