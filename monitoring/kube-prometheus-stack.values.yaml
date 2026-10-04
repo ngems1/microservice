@@ -1,0 +1,112 @@
+# kube-prometheus-stack, installed by the deploy workflow (job "monitoring") into the
+# "monitoring" namespace. Sized for 4 x t3.medium: short retention, small requests.
+#
+#   Prometheus  scrapes the cluster: pods (CPU, memory, restarts, readiness through
+#               kube-state-metrics and the kubelet), nodes (node-exporter) and the
+#               services that expose /metrics (prometheus.io/* pod annotations:
+#               inventoryservice, productcatalogservice).
+#   Grafana     dashboards: the "Boutique" dashboard (monitoring/dashboards) plus the
+#               chart's Kubernetes dashboards. Data sources: Prometheus, and CloudWatch
+#               (ALB, SQS, RDS) through a read-only Pod Identity role (terraform-aws/monitoring.tf).
+#
+# Alertmanager is off: alerts already go CloudWatch -> SNS -> Slack (#boutique-alerts).
+
+alertmanager:
+  enabled: false
+
+# Control-plane components EKS manages itself: nothing to scrape, avoid "down" targets.
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+prometheusOperator:
+  # No admission webhooks: one less component (and certificate job) to run.
+  admissionWebhooks:
+    enabled: false
+  tls:
+    enabled: false
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { memory: 256Mi }
+
+prometheus:
+  prometheusSpec:
+    retention: 24h            # lab: one day of history, kept in memory/emptyDir
+    scrapeInterval: 30s
+    resources:
+      requests: { cpu: 100m, memory: 400Mi }
+      limits: { memory: 1200Mi }
+    # Scrape every pod that asks for it with prometheus.io/* annotations.
+    additionalScrapeConfigs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: '([^:]+)(?::\d+)?;(\d+)'
+            replacement: '$1:$2'
+            target_label: __address__
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            regex: (.+)
+            target_label: __metrics_path__
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            target_label: app
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+
+kube-state-metrics:
+  resources:
+    requests: { cpu: 20m, memory: 64Mi }
+    limits: { memory: 256Mi }
+
+prometheus-node-exporter:
+  resources:
+    requests: { cpu: 20m, memory: 32Mi }
+    limits: { memory: 128Mi }
+
+grafana:
+  # Pod Identity links this service account to the CloudWatch read-only role.
+  serviceAccount:
+    create: true
+    name: grafana
+  admin:
+    existingSecret: grafana-admin   # created by the workflow from GRAFANA_ADMIN_PASSWORD
+    userKey: admin-user
+    passwordKey: admin-password
+  grafana.ini:
+    users:
+      allow_sign_up: false
+    auth.anonymous:
+      enabled: false
+    analytics:
+      reporting_enabled: false
+      check_for_updates: false
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 384Mi }
+  defaultDashboardsTimezone: browser
+  additionalDataSources:
+    - name: CloudWatch
+      uid: cloudwatch
+      type: cloudwatch
+      access: proxy
+      jsonData:
+        authType: default          # AWS SDK default chain = EKS Pod Identity
+        defaultRegion: us-east-1
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"

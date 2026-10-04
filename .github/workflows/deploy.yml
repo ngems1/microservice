@@ -17,6 +17,7 @@ on:
       - "helm-chart/**"
       - "db/**"
       - "deploy/**"
+      - "monitoring/**"
       - ".github/workflows/deploy.yml"
       - ".github/workflows/deploy-env.yml"
   workflow_dispatch:
@@ -212,6 +213,50 @@ jobs:
       environment: prod
       image_tag: ${{ needs.setup.outputs.tag }}
 
+  # Prometheus + Grafana (namespace "monitoring", shared by dev and prod): installed
+  # or updated after dev, while prod waits for its approval. Skipped with a notice
+  # until the GRAFANA_ADMIN_PASSWORD secret is set (docs/week3/MONITORING.md).
+  monitoring:
+    needs: deploy-dev
+    if: always() && needs.deploy-dev.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      grafana_url: ${{ steps.install.outputs.GRAFANA_URL }}
+    env:
+      KPS_VERSION: ">= 75.0.0, < 90.0.0" # kube-prometheus-stack; the installed version is printed in the log
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (deploy role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v4.3.0
+
+      - name: Connect kubectl to the cluster
+        run: |
+          aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
+          CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)
+          rm -f state.json
+          aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
+
+      - name: Install Prometheus + Grafana
+        id: install
+        env:
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          MONITORING_ALLOWED_CIDR: ${{ vars.MONITORING_ALLOWED_CIDR }}
+        run: |
+          if [ -z "$GRAFANA_ADMIN_PASSWORD" ]; then
+            echo "::notice::Monitoring skipped: set the GRAFANA_ADMIN_PASSWORD repository secret (docs/week3/MONITORING.md)."
+            exit 0
+          fi
+          bash deploy/monitoring.sh
+
   # Proves dev can't reach prod (network + IAM), once both are on the new version.
   isolation-test:
     needs: deploy-prod
@@ -235,7 +280,7 @@ jobs:
             "Version \`${TAG}\` passed dev: ${DEV_URL}"$'\n'"Approve it in the run: *Review deployments*."
 
   notify:
-    needs: [setup, build, deploy-dev, deploy-prod, isolation-test]
+    needs: [setup, build, deploy-dev, deploy-prod, isolation-test, monitoring]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -251,11 +296,13 @@ jobs:
           SETUP: ${{ needs.setup.result }}
           DEV_URL: ${{ needs.deploy-dev.outputs.url }}
           PROD_URL: ${{ needs.deploy-prod.outputs.url }}
+          GRAFANA_URL: ${{ needs.monitoring.outputs.grafana_url }}
         run: |
           icon() { case "$1" in success) echo ":white_check_mark:";; skipped) echo ":fast_forward:";; cancelled) echo ":no_entry_sign:";; *) echo ":x:";; esac; }
           text="$(icon "$SETUP") setup   $(icon "$BUILD") build + scan   $(icon "$DEV") dev   $(icon "$PROD") prod   $(icon "$ISOLATION") isolation test"
           [ -n "$DEV_URL" ] && text+=$'\n'"Dev: ${DEV_URL}"
           [ -n "$PROD_URL" ] && text+=$'\n'"Prod: ${PROD_URL}"
+          [ -n "$GRAFANA_URL" ] && text+=$'\n'"Grafana: ${GRAFANA_URL}"
           if [ "$PROD" = success ] && [ "$ISOLATION" = success ]; then
             color=good; title="Deployed \`${TAG}\` to dev and prod"
           elif [ "$DEV" = success ] && [ "$PROD" = skipped ]; then

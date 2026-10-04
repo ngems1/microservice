@@ -1,0 +1,27 @@
+# Grafana's own internet-facing ALB, reachable ONLY from MONITORING_ALLOWED_CIDR
+# (GitHub variable), and protected by the Grafana login (GRAFANA_ADMIN_PASSWORD).
+# Rendered by deploy/monitoring.sh (envsubst), removed by "infra -> destroy" like the shop ALBs.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: monitoring
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: boutique-monitoring
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/inbound-cidrs: "${MONITORING_ALLOWED_CIDR}"
+    alb.ingress.kubernetes.io/healthcheck-path: /api/health
+    alb.ingress.kubernetes.io/tags: "Namespace=monitoring"
+spec:
+  ingressClassName: alb
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: monitoring-grafana
+            port:
+              number: 80
