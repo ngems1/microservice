@@ -71,6 +71,6 @@ Extra cost while running: the 4th node (~$1/day) and Grafana's ALB (~$0.55/day).
 | Grafana URL times out | Your IP is not in `MONITORING_ALLOWED_CIDR`, or the ALB is still starting (2-3 min) |
 | CloudWatch panels empty | ALB metrics only appear once the shop gets traffic; use a time range of 30 min or more. Re-running deploy restarts Grafana (fresh AWS credentials). |
 | "Datasource prometheus was not found" | The data sources are created by `monitoring/kube-prometheus-stack.values.yaml` (`additionalDataSources`); re-run deploy, it restarts Grafana to load them |
-| Prometheus data source has an empty settings page, "Alerting: Not supported", missing from Explore | The Prometheus plugin is not installed (Grafana 12.3+ no longer ships it built in). It is listed under `grafana.plugins` in the values file and installed at every Grafana start; re-run deploy. Check: Administration → Plugins → Prometheus shows "Installed" |
+| Prometheus data source has an empty settings page, "Alerting: Not supported", missing from Explore | The bundled Prometheus plugin did not load. Look for `prometheus` in Grafana's logs (Actions → cluster-status → `monitoring`). Do not list it under `grafana.plugins`: Grafana then tries to replace the bundled copy, fails on the read-only disk and does not start |
 | Application panels empty | Prometheus → Status → Targets: job `kubernetes-pods` should list inventoryservice and productcatalogservice as UP |
 | Pods `Pending` | Not enough pod slots: the cluster needs its 4th node (see above) |
