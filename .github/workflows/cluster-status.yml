@@ -50,6 +50,18 @@ jobs:
       - name: Helm releases
         run: helm list -A 2>/dev/null || true
 
+      # Deployment history of the shop in this namespace: every deploy and rollback is a
+      # new revision, with the image tag (commit SHA) it runs. Evidence for the rollback demo.
+      - name: Helm history
+        if: startsWith(inputs.namespace, 'boutique-')
+        env:
+          NS: ${{ inputs.namespace }}
+        run: |
+          helm -n "$NS" history boutique --max 8 2>/dev/null || true
+          echo
+          echo "Image running now:"
+          kubectl -n "$NS" get deploy frontend -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}' 2>/dev/null || true
+
       - name: Namespace snapshot
         env:
           NS: ${{ inputs.namespace }}
