@@ -1,27 +1,39 @@
 name: load-test
 
 # Simulated shoppers against the DEV shop for a fixed time; stops by itself.
-# Use it to make the Grafana dashboard move (traffic, latency, orders, queues, CPU)
-# and, later, to trigger the autoscaler. Prod is never load-tested.
+#   load:   steady shoppers, makes the Grafana dashboard move.
+#   stress: stepped ramp-up over several Locust pods, finds the breaking point
+#           (p95 latency and errors climbing on the dashboard). Prod is never tested.
 # Actions > load-test > Run workflow. The Locust summary is on the run's Summary page.
 
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: "load = steady shoppers (dashboard demo); stress = ramp up until the shop struggles"
+        type: choice
+        options: [load, stress]
+        default: load
       users:
-        description: "Simulated shoppers"
+        description: "load mode: simulated shoppers"
         type: choice
         options: ["5", "10", "20", "50"]
         default: "10"
+      max_users:
+        description: "stress mode: shoppers at the top of the ramp (busy shoppers, ~1 request/s each)"
+        type: choice
+        options: ["100", "200", "400", "800"]
+        default: "200"
       minutes:
         description: "Duration (minutes)"
         type: choice
         options: ["5", "10", "15", "30"]
         default: "10"
       restock:
-        description: "Reset dev stock first (50 per product, Mug 2)"
-        type: boolean
-        default: true
+        description: "Reset dev stock first: normal = 50 per product (Mug 2), unlimited = 100000 (use for stress)"
+        type: choice
+        options: [normal, unlimited, none]
+        default: normal
 
 permissions:
   id-token: write # GitHub OIDC -> AWS
@@ -37,7 +49,7 @@ env:
 jobs:
   load-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
 
@@ -63,12 +75,15 @@ jobs:
 
       - name: Load test
         env:
+          MODE: ${{ inputs.mode }}
           USERS: ${{ inputs.users }}
+          MAX_USERS: ${{ inputs.max_users }}
           MINUTES: ${{ inputs.minutes }}
           RESTOCK: ${{ inputs.restock }}
         run: |
           {
-            echo "### Load test: ${USERS} users, ${MINUTES} min, dev"
+            if [ "$MODE" = stress ]; then echo "### Stress test: ramp to ${MAX_USERS} shoppers, ${MINUTES} min, dev"
+            else echo "### Load test: ${USERS} shoppers, ${MINUTES} min, dev"; fi
             echo '```'
             bash deploy/load-test.sh
             echo '```'
