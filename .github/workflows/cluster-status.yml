@@ -10,7 +10,7 @@ on:
       namespace:
         description: "Namespace to inspect"
         type: choice
-        options: [boutique-dev, boutique-prod, kube-system, amazon-cloudwatch]
+        options: [boutique-dev, boutique-prod, monitoring, kube-system, amazon-cloudwatch]
         default: boutique-dev
 
 permissions:
