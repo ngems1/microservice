@@ -34,6 +34,10 @@ helm upgrade --install monitoring kube-prometheus-stack \
   --namespace "$NS" -f monitoring/kube-prometheus-stack.values.yaml \
   --wait=watcher --timeout 10m
 echo "kube-prometheus-stack: $(helm -n "$NS" list -f '^monitoring$' -o json | jq -r '.[0].chart')"
+# Restart Grafana so it always loads the current data sources (and its Pod Identity
+# credentials, if the IAM link was created after the pod). A few seconds of downtime.
+kubectl -n "$NS" rollout restart deployment -l app.kubernetes.io/name=grafana
+kubectl -n "$NS" rollout status deployment -l app.kubernetes.io/name=grafana --timeout=5m
 kubectl -n "$NS" get pods -o wide
 
 # Grafana's ALB: only from the allowed address range, never from everywhere.
