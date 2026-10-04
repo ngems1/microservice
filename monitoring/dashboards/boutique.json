@@ -7,7 +7,7 @@
   ],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "refresh": "30s",
   "editable": true,
   "time": {
@@ -346,7 +346,7 @@
       "id": 6,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "Orders whose stock was reserved, out of all orders inventoryservice decided on (FAILED = out of stock). Duplicates are not counted.",
       "gridPos": {
@@ -359,7 +359,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "100 * sum(increase(inventory_reservations_total{namespace=\"boutique-prod\",result=\"reserved\"}[1h])) / sum(increase(inventory_reservations_total{namespace=\"boutique-prod\",result=~\"reserved|failed\"}[1h]))",
@@ -415,7 +415,7 @@
       "id": 7,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "Orders whose stock was reserved, out of all orders inventoryservice decided on (FAILED = out of stock). Duplicates are not counted.",
       "gridPos": {
@@ -428,7 +428,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "100 * sum(increase(inventory_reservations_total{namespace=\"boutique-dev\",result=\"reserved\"}[1h])) / sum(increase(inventory_reservations_total{namespace=\"boutique-dev\",result=~\"reserved|failed\"}[1h]))",
@@ -484,7 +484,7 @@
       "id": 8,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "Running pods that fail their readiness probe. Should be 0.",
       "gridPos": {
@@ -497,7 +497,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum(kube_pod_status_ready{namespace=\"boutique-prod\",condition=\"false\"} * on(namespace,pod) group_left() (kube_pod_status_phase{phase=\"Running\"} == 1)) or vector(0)",
@@ -549,7 +549,7 @@
       "id": 9,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "Running pods that fail their readiness probe. Should be 0.",
       "gridPos": {
@@ -562,7 +562,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum(kube_pod_status_ready{namespace=\"boutique-dev\",condition=\"false\"} * on(namespace,pod) group_left() (kube_pod_status_phase{phase=\"Running\"} == 1)) or vector(0)",
@@ -963,7 +963,7 @@
       "id": 15,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "Catalog requests answered from Redis instead of MySQL (productcatalogservice).",
       "gridPos": {
@@ -976,7 +976,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "100 * sum by (namespace) (rate(productcatalog_cache_requests_total{result=\"hit\"}[5m])) / sum by (namespace) (rate(productcatalog_cache_requests_total[5m]))",
@@ -1016,7 +1016,7 @@
       "id": 16,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "A MySQL load happens once per cache expiry (5 min). Errors and fallbacks should stay at 0.",
       "gridPos": {
@@ -1029,7 +1029,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum by (namespace) (increase(productcatalog_mysql_loads_total[5m]))",
@@ -1040,7 +1040,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "B",
           "expr": "sum by (namespace) (increase(productcatalog_mysql_errors_total[5m]))",
@@ -1051,7 +1051,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "C",
           "expr": "sum by (namespace) (increase(productcatalog_redis_errors_total[5m]))",
@@ -1062,7 +1062,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "D",
           "expr": "sum by (namespace) (increase(productcatalog_fallback_total[5m]))",
@@ -1101,7 +1101,7 @@
       "id": 17,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "reserved = confirmed order, failed = out of stock, duplicate = an event delivered twice (handled once).",
       "gridPos": {
@@ -1114,7 +1114,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum by (namespace, result) (increase(inventory_reservations_total[5m]))",
@@ -1153,7 +1153,7 @@
       "id": 18,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "Time inventoryservice needs to reserve stock for one OrderCreated event.",
       "gridPos": {
@@ -1166,7 +1166,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "histogram_quantile(0.95, sum by (le, namespace) (rate(inventory_message_processing_seconds_bucket[5m])))",
@@ -1205,7 +1205,7 @@
       "id": 19,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "invalid = rejected event (goes to the DLQ after 3 tries), processing = AWS error (retried).",
       "gridPos": {
@@ -1218,7 +1218,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum by (namespace, kind) (increase(inventory_message_errors_total[5m]))",
@@ -1405,7 +1405,7 @@
       "id": 24,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "",
       "gridPos": {
@@ -1418,7 +1418,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace=~\"boutique-.*\",container!=\"\"}[5m]))",
@@ -1457,7 +1457,7 @@
       "id": 25,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "",
       "gridPos": {
@@ -1470,7 +1470,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum by (namespace, pod) (container_memory_working_set_bytes{namespace=~\"boutique-.*\",container!=\"\"})",
@@ -1509,7 +1509,7 @@
       "id": 26,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "Restarts in the last hour. A pod that keeps restarting is crash-looping (see the runbook).",
       "gridPos": {
@@ -1522,7 +1522,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"boutique-.*\"}[1h])) > 0",
@@ -1561,7 +1561,7 @@
       "id": 27,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "",
       "gridPos": {
@@ -1574,7 +1574,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))",
@@ -1614,7 +1614,7 @@
       "id": 28,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${prometheus}"
       },
       "description": "",
       "gridPos": {
@@ -1627,7 +1627,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${prometheus}"
           },
           "refId": "A",
           "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
@@ -1939,5 +1939,21 @@
       }
     }
   ],
-  "description": "Week 3 retail platform on EKS: SLIs, ALB traffic, application metrics, event flow, Kubernetes and RDS. Built by the deploy workflow from monitoring/dashboards/boutique.json."
+  "description": "Week 3 retail platform on EKS: SLIs, ALB traffic, application metrics, event flow, Kubernetes and RDS. Built by the deploy workflow from monitoring/dashboards/boutique.json.",
+  "templating": {
+    "list": [
+      {
+        "type": "datasource",
+        "name": "prometheus",
+        "label": "Prometheus",
+        "query": "prometheus",
+        "hide": 0,
+        "refresh": 1,
+        "regex": "",
+        "current": {},
+        "options": [],
+        "description": "The Prometheus data source created by kube-prometheus-stack (picked automatically)."
+      }
+    ]
+  }
 }
