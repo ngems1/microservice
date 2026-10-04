@@ -38,9 +38,25 @@ If your IP changes (home / office), update the variable and re-run **deploy** (o
 | **Kubernetes** | CPU and memory per pod, restarts, node CPU and memory | Prometheus |
 | **Databases** | RDS CPU, connections, free storage, read/write latency | CloudWatch (RDS) |
 
-## Load test (makes the dashboard move)
+## Load test and stress test
 
-**Actions → load-test → Run workflow**: shoppers (5-50), duration (5-30 min), restock (dev stock back to 50, the Mug stays at 2 so some orders fail). It runs Locust (the loadgenerator image) against the **dev** shop and **stops by itself**; the Locust summary (requests, failures, latency) is on the run's Summary page. The orders are real: they go through the whole event flow.
+**Actions → load-test → Run workflow** (dev only, stops by itself, the Locust summary is on the run's Summary page):
+
+| Mode | What it does | Use it for |
+|---|---|---|
+| `load` | Steady 5-50 shoppers with normal pauses (the loadgenerator image's Locust file) | Making the dashboard move, the demo |
+| `stress` | **Stepped ramp-up** to 100-800 busy shoppers (~1 request/s each), +N every minute until 2/3 of the run, then hold. Spread over several Locust pods (one per ~150 shoppers). `deploy/load/stress_locustfile.py`, mounted from a ConfigMap. | Finding the **breaking point**: the load at which p95 latency and errors start to climb |
+
+Restock: `normal` = 50 per product, the Mug at 2 (some orders fail: realistic); `unlimited` = 100000 per product (use it for stress, so orders fail because of capacity, never because of stock); `none`.
+
+**Reading a stress test** on the dashboard (time range: last 30 min):
+- *Shop traffic*: requests/min rise step by step, then flatten when the shop can't serve more.
+- *SLIs*: p95 latency is the first to degrade (orange > 0.5 s, red > 1 s); 5xx follow when pods time out.
+- *Kubernetes*: the saturated service is the one whose CPU stays at its limit (frontend: 200m). Without autoscaling, its latency grows with every step.
+- *Event flow*: queues should stay near 0; if they grow, a consumer can't keep up.
+- *prod*: its panels should stay flat and green; dev is isolated by CPU/memory limits, NetworkPolicies and its own databases.
+
+The orders are real (MySQL rows, DynamoDB writes, events, Lambda runs): a 15-minute stress test at 400 shoppers creates a few thousand orders and costs cents.
 
 ## Cost and capacity
 
