@@ -30,3 +30,13 @@ output "slack_webhook_secret_arn" {
   description = "Secrets Manager secret the infra workflow writes the Slack webhook URL into (read by the slack-alerts Lambda)."
   value       = aws_secretsmanager_secret.slack_webhook.arn
 }
+
+output "tls" {
+  description = "HTTPS settings read by the deploy workflow (null when no domain is set)."
+  value = local.tls_enabled ? {
+    domain          = var.domain_name
+    certificate_arn = aws_acm_certificate_validation.main[0].certificate_arn
+    zone_id         = data.aws_route53_zone.main[0].zone_id
+    hosts           = local.tls_hosts
+  } : null
+}

@@ -58,6 +58,14 @@ if [[ ",$MONITORING_ALLOWED_CIDR," == *",0.0.0.0/0,"* ]]; then
 fi
 export MONITORING_ALLOWED_CIDR
 envsubst '${MONITORING_ALLOWED_CIDR}' < monitoring/grafana-ingress.yaml | kubectl apply -f -
+# HTTPS with our domain (terraform-aws/dns.tf), when set: same settings as the shop.
+if [ -n "${CERT_ARN:-}" ] && [ -n "${GRAFANA_HOST:-}" ]; then
+  kubectl -n "$NS" annotate ingress grafana --overwrite \
+    alb.ingress.kubernetes.io/listen-ports='[{"HTTP": 80}, {"HTTPS": 443}]' \
+    alb.ingress.kubernetes.io/certificate-arn="$CERT_ARN" \
+    alb.ingress.kubernetes.io/ssl-redirect=443 \
+    alb.ingress.kubernetes.io/ssl-policy=ELBSecurityPolicy-TLS13-1-2-2021-06
+fi
 
 host=""
 for _ in $(seq 1 30); do
@@ -69,10 +77,15 @@ if [ -z "$host" ]; then
   echo "::warning::Grafana's ALB has no address yet. Check: kubectl -n kube-system logs deploy/aws-load-balancer-controller"
   exit 0
 fi
-echo "GRAFANA_URL=http://${host}" >> "${GITHUB_OUTPUT:-/dev/null}"
+grafana_url="http://${host}"
+if [ -n "${CERT_ARN:-}" ] && [ -n "${GRAFANA_HOST:-}" ]; then
+  bash deploy/dns-record.sh upsert "$GRAFANA_HOST" "$host"
+  grafana_url="https://${GRAFANA_HOST}"
+fi
+echo "GRAFANA_URL=${grafana_url}" >> "${GITHUB_OUTPUT:-/dev/null}"
 {
   echo "### Monitoring"
-  echo "- Grafana: http://${host} (user \`admin\`, password = the GRAFANA_ADMIN_PASSWORD secret)"
+  echo "- Grafana: ${grafana_url} (user \`admin\`, password = the GRAFANA_ADMIN_PASSWORD secret)"
   echo "- Reachable only from \`${MONITORING_ALLOWED_CIDR}\`. A new ALB needs 2-3 minutes before it answers."
   echo "- Dashboard: **Boutique: platform overview** (Dashboards > Browse)"
 } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"

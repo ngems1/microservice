@@ -37,7 +37,11 @@ pod_failure() {
   ready_at=""
   for _ in $(seq 1 90); do
     if [ -n "$shop_url" ]; then
-      code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://${shop_url}/" || echo 000)
+      if [ -n "${TLS_HOST:-}" ]; then
+        code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 --connect-to "${TLS_HOST}:443:${shop_url}:443" "https://${TLS_HOST}/" || echo 000)
+      else
+        code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://${shop_url}/" || echo 000)
+      fi
       if [ "$code" = 200 ]; then ok=$((ok+1)); else bad=$((bad+1)); echo "$(ts) shop answered ${code}"; fi
     fi
     if [ -z "$ready_at" ]; then
@@ -159,10 +163,12 @@ YAML
   [ "$OUTAGE_MINUTES" -ge 8 ] && summary "- The *inventory-backlog* alarm (oldest message > 5 min, 3 checks) should now be 🔴 in #boutique-alerts."
 
   echo "$(ts) restarting inventoryservice"
+  # The clock starts at the restart: pod start-up + working off the backlog.
+  start_drain=$(date +%s)
   kubectl -n "$NS" scale deploy inventoryservice --replicas="$ORIGINAL_REPLICAS" >/dev/null
   kubectl -n "$NS" delete job "$TRAFFIC" --ignore-not-found --wait=false >/dev/null 2>&1
   kubectl -n "$NS" rollout status deploy/inventoryservice --timeout=180s
-  start_drain=$(date +%s)
+  echo "$(ts) inventoryservice Ready after $(( $(date +%s) - start_drain )) s"
   for _ in $(seq 1 60); do
     read -r waiting inflight < <(queue_line "$INVENTORY_QUEUE_URL")
     printf '%-10s %-10s %-10s\n' "$(ts)" "$waiting" "$inflight"
@@ -170,7 +176,7 @@ YAML
     sleep 5
   done
   if [ "$waiting" = 0 ] && [ "$inflight" = 0 ]; then
-    summary "- ✅ Consumer back: queue empty after **$(( $(date +%s) - start_drain )) s**. No message lost: SQS kept them until a consumer was there."
+    summary "- ✅ Consumer back: backlog processed **$(( $(date +%s) - start_drain )) s after the restart** (pod start-up included). No message lost: SQS kept them until a consumer was there."
   else
     summary "- ⚠️ Still ${waiting} waiting / ${inflight} in flight after 5 min: check inventoryservice logs below."
   fi

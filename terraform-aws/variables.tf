@@ -78,3 +78,9 @@ variable "lbc_version" {
   type        = string
   default     = "v2.13.0"
 }
+
+variable "domain_name" {
+  description = "Public Route 53 hosted zone in this account for HTTPS (dev./shop./grafana.<domain>). Empty = plain http ALB addresses. Set through the GitHub variable DOMAIN_NAME."
+  type        = string
+  default     = ""
+}

@@ -149,6 +149,9 @@ frontend:
     # The ALB sends traffic and health checks straight to the pod IPs (target-type ip),
     # so the frontend NetworkPolicy lets in this range: the VPC.
     allowFromCidr: 10.0.0.0/16
+    # HTTPS: ACM certificate ARN (set by the deploy workflow from terraform-aws/dns.tf).
+    # Empty = plain http on port 80.
+    certificateArn: ""
     annotations: {}
   virtualService:
     create: false

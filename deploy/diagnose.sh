@@ -50,6 +50,9 @@ if [ "$ns" = monitoring ]; then
     kubectl -n "$ns" get "$gpod" -o jsonpath='{range .spec.containers[?(@.name=="grafana")]}securityContext: {.securityContext}{"\n"}{range .volumeMounts[*]}mount: {.mountPath}{" ro="}{.readOnly}{"\n"}{end}{end}' 2>&1
     echo "=== ${gpod}: plugin / error messages ==="
     kubectl -n "$ns" logs "$gpod" -c grafana 2>&1 | grep -iE 'plugin|prometheus|level=(error|warn)' | grep -v 'level=debug' | head -60
+    # CloudWatch panels empty? Grafana's CloudWatch plugin logs why (last 40 lines).
+    echo "=== ${gpod}: CloudWatch plugin messages (latest) ==="
+    kubectl -n "$ns" logs "$gpod" -c grafana 2>&1 | grep -iE 'cloudwatch|tsdb\.|aws' | tail -40
   fi
 fi
 exit 0
