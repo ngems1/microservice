@@ -81,8 +81,8 @@ git branch -D feature/checkout-order-events
 | Restrict deletions | On |
 | Block force pushes | On |
 | Require linear history | On |
-| Require a pull request before merging | On. Required approvals: **0** while you work alone (GitHub doesn't let you approve your own PR). Raise it to 1 when a teammate joins. Tick "Require conversation resolution". |
-| Require status checks to pass | On. Add **`ci-ok`**. Later, once AWS is connected, also add **`terraform`** (the infra plan). Tick "Require branches to be up to date". |
+| Require a pull request before merging | On. Required approvals: **0** while you work alone (GitHub doesn't let you approve your own PR). Raise it to 1 when a teammate joins. Tick "Require conversation resolution". Allowed merge methods: **Squash** only. |
+| Require status checks to pass | On. Add only **`ci-ok`**. Do **not** add `terraform`: it only runs on PRs that touch `terraform-aws/`, so every other PR would wait for it forever. Tick "Require branches to be up to date". |
 
 Click **Create**.
 
