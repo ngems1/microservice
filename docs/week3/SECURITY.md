@@ -69,6 +69,10 @@ Proven by the isolation test after every prod deploy ([ISOLATION.md](ISOLATION.m
 
 - **Immutable images**: tagged with the commit SHA, ECR `IMMUTABLE` tags, so a tag always means the
   same code and prod runs exactly what passed in dev.
+- **CodeQL (SAST)** analyses the application code itself (Go, C#, Java, JavaScript, Python) and
+  the GitHub workflows on every pull request, on `main` and weekly (`.github/workflows/codeql.yml`,
+  `security-extended` queries). It runs with read-only access and no AWS credentials; findings are in
+  the Security tab > Code scanning.
 - **ECR scan on push** with a **blocking gate**: a CRITICAL finding stops the deploy before the
   cluster (`SCAN_BLOCKING=false` only reports).
 - **Why not Trivy**: the Trivy GitHub Action was compromised in March 2026 (CVE-2026-33634). ECR's
