@@ -3,6 +3,7 @@
 [![Deploy](https://github.com/ngems1/microservice/actions/workflows/deploy.yml/badge.svg)](https://github.com/ngems1/microservice/actions/workflows/deploy.yml)
 [![CI](https://github.com/ngems1/microservice/actions/workflows/ci.yml/badge.svg)](https://github.com/ngems1/microservice/actions/workflows/ci.yml)
 [![Infra](https://github.com/ngems1/microservice/actions/workflows/infra.yml/badge.svg)](https://github.com/ngems1/microservice/actions/workflows/infra.yml)
+[![CodeQL](https://github.com/ngems1/microservice/actions/workflows/codeql.yml/badge.svg)](https://github.com/ngems1/microservice/actions/workflows/codeql.yml)
 
 An online shop made of **12 microservices** running on **Amazon EKS**, with separate **dev** and
 **prod** environments, an **event-driven order flow** (EventBridge, SQS, Lambda), real order emails
@@ -40,6 +41,8 @@ service, managed AWS data stores and the order events.
   to HTTPS; the smoke test checks the certificate on the real name.
 - **Autoscaling** — HorizontalPodAutoscalers on the five busiest services, metrics-server, and VPC
   CNI prefix delegation (110 pods per node instead of 17).
+- **SAST with CodeQL** — every pull request is analysed for security bugs in all 5 languages
+  (Go, C#, Java, JavaScript, Python) and in the GitHub workflows; results in the Security tab.
 - **Secure CI/CD** — OIDC roles (read-only for pull requests, deploy only from `main`), Checkov on
   Terraform, immutable images tagged with the commit SHA, an **ECR scan gate** before anything
   reaches the cluster, and prod behind an approval.
@@ -408,6 +411,9 @@ Details: [docs/week3/MONITORING.md](docs/week3/MONITORING.md), [docs/week3/SLACK
 <td colspan="2"><img src="docs/screenshots/deploy-pipeline.png" alt="deploy.yml run: setup, 12 image builds, deploy dev, approval, deploy prod, isolation test, notify"><br><sub><code>deploy.yml</code>: 12 builds → dev → approval → prod → isolation test</sub></td>
 </tr>
 <tr>
+<td colspan="2"><img src="docs/screenshots/codeql-run.png" alt="CodeQL run: go, csharp, java-kotlin, javascript-typescript, python and actions all green"><br><sub><code>codeql.yml</code>: SAST on all 5 languages and the workflows, all green</sub></td>
+</tr>
+<tr>
 <td colspan="2"><img src="docs/screenshots/slack-deploy.png" alt="Slack deploy message with every stage green"><br><sub>The result posted to Slack <code>#boutique-deploys</code></sub></td>
 </tr>
 </table>
@@ -448,6 +454,7 @@ Details: [docs/week3/MONITORING.md](docs/week3/MONITORING.md), [docs/week3/SLACK
 
 | Area | Change |
 |---|---|
+| Security | SAST with CodeQL on every pull request, push to `main` and weekly (all 5 languages + workflows) |
 | Notifications | Order emails with Amazon SES (DKIM, sender-restricted IAM) and Slack `#boutique-orders` |
 | Network | HTTPS on `sebngembou-cloud.click` for dev, prod and Grafana (Route 53, ACM, HTTP→HTTPS) |
 | Reliability | Chaos workflow: pod failure and consumer failure in dev, state restored automatically |
