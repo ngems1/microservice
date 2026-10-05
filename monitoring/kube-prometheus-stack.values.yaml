@@ -102,9 +102,11 @@ grafana:
     plugins:
       preinstall_disabled: true
       preinstall_auto_update: false
+  # Week 3: 384Mi was too little: Grafana was OOMKilled during the stress test (the 503
+  # page) and again later with the whole dashboard open. Grafana 13 needs more.
   resources:
-    requests: { cpu: 50m, memory: 128Mi }
-    limits: { memory: 384Mi }
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { memory: 768Mi }
   defaultDashboardsTimezone: browser
   # No "plugins:" list here either: it would make Grafana replace a bundled plugin at
   # startup, fail on the read-only disk and exit (see grafana.ini > plugins above).
