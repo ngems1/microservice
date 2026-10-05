@@ -125,4 +125,18 @@ if [ -n "${NOTIFICATIONS_TABLE:-}" ]; then
     --query 'sort_by(Items, &sentAt.S)[-10:].[sentAt.S, orderId.S, status.S, recipient.S, subject.S]' \
     --output table 2>&1
 fi
+
+if [ -n "${SES_DOMAIN:-}" ]; then
+  echo
+  echo "=== 6. Amazon SES (real order emails) ==="
+  # Read through the workflow's role: the SES console may be closed to personal IAM users.
+  aws sesv2 get-account --query '{sandbox: !ProductionAccessEnabled, sendingEnabled: SendingEnabled, sentLast24h: SendQuota.SentLast24Hours, max24h: SendQuota.Max24HourSend}' --output table 2>&1
+  printf '%-40s %-22s %s\n' IDENTITY VERIFIED_FOR_SENDING DKIM
+  for id in "$SES_DOMAIN" $(tr ',' ' ' <<<"${SES_RECIPIENTS:-}"); do
+    read -r ok dkim < <(aws sesv2 get-email-identity --email-identity "$id" \
+      --query '[VerifiedForSendingStatus, DkimAttributes.Status]' --output text 2>/dev/null || echo "? ?")
+    printf '%-40s %-22s %s\n' "$id" "$ok" "$dkim"
+  done
+  echo "(both True = emails can go out; sandbox = only to the verified addresses listed)"
+fi
 exit 0
