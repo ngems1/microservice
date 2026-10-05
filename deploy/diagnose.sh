@@ -50,7 +50,22 @@ if [ "$ns" = monitoring ]; then
     kubectl -n "$ns" get "$gpod" -o jsonpath='{range .spec.containers[?(@.name=="grafana")]}securityContext: {.securityContext}{"\n"}{range .volumeMounts[*]}mount: {.mountPath}{" ro="}{.readOnly}{"\n"}{end}{end}' 2>&1
     echo "=== ${gpod}: plugin / error messages ==="
     kubectl -n "$ns" logs "$gpod" -c grafana 2>&1 | grep -iE 'plugin|prometheus|level=(error|warn)' | grep -v 'level=debug' | head -60
-    # CloudWatch panels empty? Grafana's CloudWatch plugin logs why (last 40 lines).
+    # CloudWatch panels empty? Same queries as the dashboard, straight to AWS (workflow role):
+    # series found here but not in Grafana = a Grafana problem; none here = no data in AWS.
+    echo "=== CloudWatch: dashboard queries run directly against AWS (last hour) ==="
+    end=$(date -u +%Y-%m-%dT%H:%M:%SZ); start=$(date -u -d '-1 hour' +%Y-%m-%dT%H:%M:%SZ)
+    for q in \
+      "rds_cpu|SEARCH('{AWS/RDS,DBInstanceIdentifier} MetricName=\"CPUUtilization\" \"week3-boutique\"', 'Average', 300)" \
+      "sqs_waiting|SEARCH('{AWS/SQS,QueueName} MetricName=\"ApproximateNumberOfMessagesVisible\" \"week3-boutique\"', 'Maximum', 60)" \
+      "alb_requests|SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" \"boutique-dev\"', 'Sum', 60)"; do
+      id=${q%%|*}; expr=${q#*|}
+      jq -n --arg id "$id" --arg e "$expr" '[{Id: $id, Expression: $e, ReturnData: true}]' > cw-q.json
+      aws cloudwatch get-metric-data --metric-data-queries file://cw-q.json --start-time "$start" --end-time "$end" \
+        --query "MetricDataResults[].[Label, length(Values)]" --output text 2>&1 \
+        | awk -v id="$id" 'BEGIN{n=0} {n++; print "  " id ": " $0 " points"} END{if(n==0) print "  " id ": NO series"}'
+    done
+    rm -f cw-q.json
+    # Grafana's CloudWatch plugin logs (last 40 lines).
     echo "=== ${gpod}: CloudWatch plugin messages (latest) ==="
     kubectl -n "$ns" logs "$gpod" -c grafana 2>&1 | grep -iE 'cloudwatch|tsdb\.|aws' | tail -40
   fi
