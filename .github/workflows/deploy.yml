@@ -243,6 +243,11 @@ jobs:
         run: |
           aws s3 cp "s3://${{ vars.TF_STATE_BUCKET }}/week3/terraform.tfstate" state.json --only-show-errors
           CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)
+          {
+            echo "GRAFANA_HOST=$(jq -r '.outputs.tls.value.hosts.monitoring // empty' state.json)"
+            echo "CERT_ARN=$(jq -r '.outputs.tls.value.certificate_arn // empty' state.json)"
+            echo "DNS_ZONE_ID=$(jq -r '.outputs.tls.value.zone_id // empty' state.json)"
+          } >> "$GITHUB_ENV"
           rm -f state.json
           aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
 

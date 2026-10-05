@@ -14,6 +14,14 @@ metadata:
     alb.ingress.kubernetes.io/healthcheck-path: /_healthz
     alb.ingress.kubernetes.io/target-group-attributes: deregistration_delay.timeout_seconds=30
     alb.ingress.kubernetes.io/tags: {{ printf "Namespace=%s" .Release.Namespace | quote }}
+    {{- with .Values.frontend.ingress.certificateArn }}
+    # Week 3: HTTPS with the ACM certificate of our domain (terraform-aws/dns.tf).
+    # Port 80 only redirects to 443; TLS 1.2+ only.
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: {{ . | quote }}
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    {{- end }}
     {{- with .Values.frontend.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

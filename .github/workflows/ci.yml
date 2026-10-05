@@ -80,6 +80,7 @@ jobs:
               -f helm-chart/values-aws.yaml -f "helm-chart/values-${env}.yaml" \
               --set images.repository=123456789012.dkr.ecr.us-east-1.amazonaws.com/boutique \
               --set images.tag=ci \
+              --set frontend.ingress.certificateArn=arn:aws:acm:us-east-1:123456789012:certificate/ci \
               --set cartDatabase.connectionString=redis.example:6379 \
               --set inventoryService.tableName=week3-boutique-${env}-inventory \
               --set inventoryService.queueUrl=https://sqs.us-east-1.amazonaws.com/123456789012/q \

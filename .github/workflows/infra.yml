@@ -33,6 +33,7 @@ env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
   TF_VAR_region: ${{ vars.AWS_REGION || 'us-east-1' }}
   TF_VAR_admin_principal_arn: ${{ vars.ADMIN_PRINCIPAL_ARN }}
+  TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }} # HTTPS: empty = plain http ALB addresses
   TF_IN_AUTOMATION: "true"
 
 jobs:
@@ -152,6 +153,13 @@ jobs:
         continue-on-error: true
         run: |
           CLUSTER=$(terraform output -raw cluster_name)
+          # dev./shop./grafana.<domain> point at these ALBs (created by the deploy workflow,
+          # not by Terraform): remove them too, so no name points at a deleted ALB.
+          tls=$(terraform output -json tls 2>/dev/null || echo null)
+          if [ "$(jq -r '.zone_id // empty' <<<"$tls")" != "" ]; then
+            export DNS_ZONE_ID=$(jq -r '.zone_id' <<<"$tls")
+            for name in $(jq -r '.hosts[]' <<<"$tls"); do bash ../deploy/dns-record.sh delete "$name" || true; done
+          fi
           aws eks update-kubeconfig --name "$CLUSTER" --region "$AWS_REGION"
           kubectl delete ingress --all --all-namespaces --wait=true --timeout=5m
           for ns in boutique-dev boutique-prod; do

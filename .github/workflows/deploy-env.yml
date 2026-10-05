@@ -72,13 +72,19 @@ jobs:
             echo "CLUSTER=$(jq -r '.outputs.cluster_name.value' state.json)"
             echo "VPC_ID=$(jq -r '.outputs.vpc_id.value' state.json)"
             echo "NS=$(jq -r --arg env "$ENVIRONMENT" '.outputs.environments.value[$env].namespace' state.json)"
+            # HTTPS (terraform-aws/dns.tf): empty when no domain is set.
+            echo "TLS_HOST=$(jq -r --arg env "$ENVIRONMENT" '.outputs.tls.value.hosts[$env] // empty' state.json)"
+            echo "DNS_ZONE_ID=$(jq -r '.outputs.tls.value.zone_id // empty' state.json)"
           } >> "$GITHUB_ENV"
 
           # Helm values with this environment's names (JSON is valid YAML).
           jq --arg env "$ENVIRONMENT" --arg region "$AWS_REGION" '
             .outputs as $o | $o.environments.value[$env] as $e | {
               images:           { repository: $o.ecr_registry.value },
-              frontend:         { ingress: { allowFromCidr: ($o.vpc_cidr.value // "10.0.0.0/16") } },
+              frontend:         { ingress: {
+                allowFromCidr:  ($o.vpc_cidr.value // "10.0.0.0/16"),
+                certificateArn: ($o.tls.value.certificate_arn // "")
+              } },
               cartDatabase:     { connectionString: $e.redis_endpoint },
               checkoutService:  { orders: {
                 awsRegion:    $region,
@@ -222,10 +228,19 @@ jobs:
             sleep 5
           done
           [ -n "$host" ] || { echo "::error::The ALB was not created. Check: kubectl -n kube-system logs deploy/aws-load-balancer-controller"; kubectl -n "$NS" describe ingress frontend; exit 1; }
-          echo "url=http://${host}" >> "$GITHUB_OUTPUT"
+          # 2) With a domain: point dev./shop.<domain> at this ALB, and test over HTTPS with
+          #    that name (the certificate is checked). --connect-to goes straight to the ALB,
+          #    so the test doesn't wait for DNS to reach the runner.
+          if [ -n "$TLS_HOST" ]; then
+            bash deploy/dns-record.sh upsert "$TLS_HOST" "$host"
+            echo "url=https://${TLS_HOST}" >> "$GITHUB_OUTPUT"
+            check() { curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --connect-to "${TLS_HOST}:443:${host}:443" "https://${TLS_HOST}$1" || true; }
+          else
+            echo "url=http://${host}" >> "$GITHUB_OUTPUT"
+            check() { curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "http://${host}$1" || true; }
+          fi
 
-          # 2) The shop answers through the ALB (DNS and target health can take a few minutes).
-          check() { curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "http://${host}$1" || true; }
+          # 3) The shop answers through the ALB (target health can take a few minutes).
           code=""
           for _ in $(seq 1 60); do
             code=$(check /)
@@ -244,7 +259,12 @@ jobs:
             [ "$c" = 200 ] || { echo "::error::GET ${path} -> ${c} after 5 tries"; exit 1; }
           done
 
-          # 3) inventoryservice reads DynamoDB (proves Pod Identity works).
+          if [ -n "$TLS_HOST" ]; then
+            redirect=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 10 "http://${host}/" || true)
+            echo "http:// -> ${redirect} (expected: 301 to https)"
+          fi
+
+          # 4) inventoryservice reads DynamoDB (proves Pod Identity works).
           kubectl -n "$NS" port-forward svc/inventoryservice 18080:80 >/dev/null 2>&1 &
           pf=$!
           sleep 5

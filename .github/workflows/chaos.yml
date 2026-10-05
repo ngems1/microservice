@@ -61,6 +61,7 @@ jobs:
             echo "NS=$(jq -r '.outputs.environments.value.dev.namespace' state.json)"
             echo "INVENTORY_QUEUE_URL=$(jq -r '.outputs.environments.value.dev.inventory_queue_url' state.json)"
             echo "DLQ_URLS_JSON=$(jq -c '[.outputs.environments.value.dev.dlq_urls[]]' state.json)"
+            echo "TLS_HOST=$(jq -r '.outputs.tls.value.hosts.dev // empty' state.json)"
           } >> "$GITHUB_ENV"
           rm -f state.json
 

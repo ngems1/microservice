@@ -75,6 +75,27 @@ Check: Actions -> cluster-status -> `boutique-dev` ("autoscalers" and "container
 restarted"), and the Nodes step (`MAX_PODS` 110). In Grafana, "CPU by pod" shows the
 extra pods during a stress test.
 
+## HTTPS with our domain
+
+With the GitHub repository variable **`DOMAIN_NAME`** set to a public Route 53 hosted
+zone in this account (here `sebngembou-cloud.click`):
+
+| Address | Points at |
+|---|---|
+| https://dev.<domain> | boutique-dev ALB |
+| https://shop.<domain> | boutique-prod ALB |
+| https://grafana.<domain> | boutique-monitoring ALB (still only from `MONITORING_ALLOWED_CIDR`) |
+
+- `terraform-aws/dns.tf`: one ACM certificate for `<domain>` and `*.<domain>`, validated
+  with DNS records in the zone (free, renewed by AWS).
+- The ingresses get an HTTPS listener with that certificate (TLS 1.2+); port 80 only
+  redirects to 443.
+- The ALBs are created by Kubernetes, so the deploy workflow points the names at them
+  (`deploy/dns-record.sh`, alias records). `infra -> destroy` removes the names again.
+- The smoke test runs over HTTPS with the real name, so a wrong certificate fails the deploy.
+
+Without `DOMAIN_NAME` everything stays on the plain `http://<alb>` addresses.
+
 ## Rollback demo (acceptance test step 12)
 
 Every deploy builds all images with the commit SHA as tag (immutable in ECR), and the
