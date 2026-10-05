@@ -1,253 +1,313 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1290" viewBox="0 0 1800 1290" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo0ZDljZjcxZi0yYWU3LTQxYzgtYTYyMi1mMTExYmNhMDkzZDcAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaPLGkK56/8uHBA5J4OxZvoEAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo3MWE1ZTAxZS02NDA1LTQ2NDQtYWI3MS04YWUzOTE4MzExYTlscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoIiKAj8OKTd4jFLhSMAu+kwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggze5cCffOUoh/E6ffg3Dguyo6npJEAmiq7qJCWtzabG+kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaBw+PDPvQo8J4PshLlYeqlAAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCDdq+o1E7nDLG/ktPdwOOaIqE1vpdjq02ZGLpmvGFpEEGRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBiaZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjRkOWNmNzFmLTJhZTctNDFjOC1hNjIyLWYxMTFiY2EwOTNkNy9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjJiMzZjZmRjLWNiNmQtNDg4Ni1hNDUyLTFhNTQ2MTlkNDNkOHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDN7lwJ985SiH8Tp9+DcOC7KjqekkQCaKruokJa3Npsb6JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggtDeXTOUrM5tnw3BrnvsDtudmcib91S17ANjchiSzdPKiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggvlilG10of2aeoVWA5Sj5FEhzhs/bM4qLGA8aexqU2/90Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQAW0i44g9yYOJE8Y/c735kEuPnD5MbcuLAGhEz2qYdBayL++c8MjuD4aSI45xnrORLaYgNfLWEFCwFTnXKX/bGA=</c2pa:manifest></metadata>
-<defs>
-<marker id="mb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/></marker>
-<marker id="mp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d6246e"/></marker>
-<marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#57606a"/></marker>
-<marker id="mv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8250df"/></marker>
-</defs>
-<rect x="0" y="0" width="1800" height="1290" rx="0" fill="#ffffff" stroke="#ffffff" stroke-width="0"/>
-<text x="40" y="44" font-family="Helvetica, Arial, sans-serif" font-size="26" font-weight="bold" fill="#1f2328" text-anchor="start">Week 3 Retail Platform: Online Boutique on Amazon EKS</text>
-<text x="40" y="68" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">11 Online Boutique services + new inventoryservice · dev and prod on one cluster, isolated by namespace · event-driven order flow</text>
-<rect x="40" y="84" width="1720" height="122" rx="10" fill="#f6f8fa" stroke="#24292f" stroke-width="1.6"/>
-<text x="56" y="106" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2328" text-anchor="start">CI/CD · GitHub Actions (GitHub Flow: short-lived branches → PR → main)</text>
-<rect x="52.0" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="150.0" y="152.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Feature branch</text>
-<text x="150.0" y="167.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">feat/… · infra/…</text>
-<polyline points="250.0,156 266.6,156" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<rect x="268.6" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="366.6" y="145.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Pull request checks</text>
-<text x="366.6" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">lint · tests · docker build</text>
-<text x="366.6" y="175.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Trivy · Checkov · helm lint</text>
-<polyline points="466.6,156 483.20000000000005,156" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<rect x="485.2" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="583.2" y="145.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Merge to main</text>
-<text x="583.2" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">protected branch</text>
-<text x="583.2" y="175.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">required checks</text>
-<polyline points="683.2,156 699.8000000000001,156" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<rect x="701.8" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="799.8" y="145.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">AWS login via OIDC</text>
-<text x="799.8" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">short-lived role</text>
-<text x="799.8" y="175.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">no stored keys</text>
-<polyline points="899.8,156 916.4,156" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<rect x="918.4" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="1016.4" y="145.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">terraform apply</text>
-<text x="1016.4" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">VPC · EKS · data · events</text>
-<text x="1016.4" y="175.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">(when terraform-aws/ changes)</text>
-<polyline points="1116.4,156 1133.0,156" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<rect x="1135.0" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="1233.0" y="145.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Build + push images</text>
-<text x="1233.0" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">tag = commit SHA</text>
-<text x="1233.0" y="175.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Trivy scan → ECR</text>
-<polyline points="1333.0,156 1349.6,156" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<rect x="1351.6" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="1449.6" y="152.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Deploy dev</text>
-<text x="1449.6" y="167.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">helm upgrade → smoke test</text>
-<polyline points="1549.6,156 1566.1999999999998,156" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<rect x="1568.2" y="118" width="196" height="76" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<text x="1666.2" y="145.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Approve → deploy prod</text>
-<text x="1666.2" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">same image, no rebuild</text>
-<text x="1666.2" y="175.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">rollback: helm rollback</text>
-<circle cx="120" cy="420" r="16" fill="none" stroke="#24292f" stroke-width="2"/>
-<path d="M92,470 Q120,430 148,470" fill="none" stroke="#24292f" stroke-width="2"/>
-<text x="120" y="492" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">Customer</text>
-<text x="120" y="507" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">(browser)</text>
-<rect x="45" y="530" width="150" height="56" rx="8" fill="#ffffff" stroke="#8250df" stroke-width="1.6"/>
-<text x="120.0" y="554.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">CloudFront</text>
-<text x="120.0" y="569.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">HTTPS, no domain needed</text>
-<polyline points="120,512 120,528" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#mb)"/>
-<text x="128" y="524" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#1a73e8" text-anchor="start">HTTPS</text>
-<rect x="220" y="230" width="1540" height="872" rx="10" fill="#ffffff" stroke="#232f3e" stroke-width="2"/>
-<text x="236" y="252" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#232f3e" text-anchor="start">AWS Cloud · us-east-1</text>
-<rect x="250" y="270" width="880" height="818" rx="8" fill="#ffffff" stroke="#1a7f37" stroke-width="1.8"/>
-<text x="262" y="290" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1a7f37" text-anchor="start">VPC 10.0.0.0/16 · 2 Availability Zones</text>
-<rect x="265" y="310" width="160" height="765" rx="6" fill="#f2f8ea" stroke="#7aa116" stroke-width="1.6" stroke-dasharray="6 4"/>
-<text x="275" y="330" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4d6b0e" text-anchor="start">Public subnets</text>
-<rect x="280" y="528" width="130" height="60" rx="8" fill="#ffffff" stroke="#8250df" stroke-width="1.6"/>
-<text x="345.0" y="547.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Application</text>
-<text x="345.0" y="562.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Load Balancer</text>
-<text x="345.0" y="577.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">(made by LB Controller)</text>
-<polyline points="195,558 278,558" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#mb)"/>
-<rect x="280" y="880" width="130" height="60" rx="8" fill="#ffffff" stroke="#7aa116" stroke-width="1.6"/>
-<text x="345.0" y="899.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">NAT gateway</text>
-<text x="345.0" y="914.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">outbound internet</text>
-<text x="345.0" y="929.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">for private subnets</text>
-<rect x="440" y="310" width="675" height="765" rx="6" fill="#f1f7fb" stroke="#147eba" stroke-width="1.6" stroke-dasharray="6 4"/>
-<text x="452" y="330" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#0e5a86" text-anchor="start">Private subnets</text>
-<rect x="460" y="345" width="630" height="485" rx="8" fill="#fff8f0" stroke="#ed7100" stroke-width="2"/>
-<text x="474" y="366" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#b35400" text-anchor="start">Amazon EKS · 3 × t3.medium nodes across 2 AZs · HPA on stateless services</text>
-<rect x="480" y="382" width="595" height="340" rx="6" fill="#fffdfb" stroke="#c7511f" stroke-width="1.6" stroke-dasharray="5 4"/>
-<rect x="495" y="528" width="150" height="60" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.6"/>
-<text x="570.0" y="547.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">frontend</text>
-<text x="570.0" y="562.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">web UI · only entry</text>
-<text x="570.0" y="577.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">from the ALB</text>
-<rect x="495" y="636" width="150" height="52" rx="8" fill="#ffffff" stroke="#6e7781" stroke-width="1.6"/>
-<text x="570.0" y="658.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">loadgenerator</text>
-<text x="570.0" y="673.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">smoke + load tests (dev)</text>
-<rect x="675" y="420" width="180" height="50" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.6"/>
-<text x="765.0" y="441.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">productcatalogservice</text>
-<text x="765.0" y="456.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Product · MySQL + Redis cache</text>
-<rect x="675" y="490" width="180" height="50" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.6"/>
-<text x="765.0" y="511.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">cartservice</text>
-<text x="765.0" y="526.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">carts in ElastiCache Redis</text>
-<rect x="675" y="560" width="180" height="50" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.6"/>
-<text x="765.0" y="581.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">checkoutservice</text>
-<text x="765.0" y="596.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Order · saves order in MySQL</text>
-<rect x="675" y="630" width="180" height="50" rx="8" fill="#ffffff" stroke="#6e7781" stroke-width="1.6"/>
-<text x="765.0" y="651.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">currency · payment</text>
-<text x="765.0" y="666.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">shipping · recommendation · ad</text>
-<rect x="885" y="433" width="180" height="74" rx="8" fill="#ffffff" stroke="#1a7f37" stroke-width="1.6"/>
-<text x="975.0" y="451.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">inventoryservice</text>
-<text x="975.0" y="466.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Inventory · REST /stock + SQS</text>
-<text x="975.0" y="481.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">stock in DynamoDB, emits</text>
-<text x="975.0" y="496.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">InventoryReserved / Failed</text>
-<rect x="1027" y="424" width="34" height="18" rx="9" fill="#1a7f37" stroke="#1a7f37" stroke-width="1.6"/>
-<text x="1044.0" y="437" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">NEW</text>
-<rect x="885" y="523" width="180" height="64" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.6"/>
-<text x="975.0" y="544.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">emailservice</text>
-<text x="975.0" y="559.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Notification · SQS consumer</text>
-<text x="975.0" y="574.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">logs to DynamoDB</text>
-<text x="492" y="704" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#c7511f" text-anchor="start">namespace boutique-dev · boutique-prod is identical, with its own DB, Redis, queues and IAM roles</text>
-<text x="492" y="717" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#c7511f" text-anchor="start">NetworkPolicies block traffic between the two namespaces · ResourceQuotas cap each one</text>
-<polyline points="645,558 673,445" fill="none" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#mb)"/>
-<polyline points="645,558 673,515" fill="none" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#mb)"/>
-<polyline points="645,558 673,585" fill="none" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#mb)"/>
-<polyline points="645,558 673,655" fill="none" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#mb)"/>
-<text x="608" y="520" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#1a73e8" text-anchor="start">gRPC</text>
-<polyline points="410,558 493,558" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#mb)"/>
-<text x="482" y="742" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#b35400" text-anchor="start">Cluster add-ons (kube-system / monitoring)</text>
-<rect x="480.0" y="752" width="140" height="54" rx="8" fill="#ffffff" stroke="#ed7100" stroke-width="1.6"/>
-<text x="550.0" y="775.5" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="middle">AWS LB Controller</text>
-<text x="550.0" y="790.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">creates the ALB</text>
-<rect x="631.7" y="752" width="140" height="54" rx="8" fill="#ffffff" stroke="#ed7100" stroke-width="1.6"/>
-<text x="701.7" y="775.5" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="middle">Prometheus + Grafana</text>
-<text x="701.7" y="790.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">dashboards, in-cluster</text>
-<rect x="783.4" y="752" width="140" height="54" rx="8" fill="#ffffff" stroke="#ed7100" stroke-width="1.6"/>
-<text x="853.4" y="775.5" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="middle">CloudWatch agent</text>
-<text x="853.4" y="790.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Container Insights</text>
-<rect x="935.0999999999999" y="752" width="140" height="54" rx="8" fill="#ffffff" stroke="#ed7100" stroke-width="1.6"/>
-<text x="1005.0999999999999" y="775.5" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="middle">Pod Identity agent</text>
-<text x="1005.0999999999999" y="790.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">AWS creds for pods</text>
-<rect x="470" y="868" width="180" height="82" rx="8" fill="#ffffff" stroke="#3b48cc" stroke-width="1.6"/>
-<text x="560.0" y="890.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">RDS MySQL 8.4</text>
-<text x="560.0" y="905.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">products, orders</text>
-<text x="560.0" y="920.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Multi-AZ in prod</text>
-<text x="560.0" y="935.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">password in Secrets Manager</text>
-<rect x="670" y="868" width="180" height="82" rx="8" fill="#ffffff" stroke="#c7131f" stroke-width="1.6"/>
-<text x="760.0" y="898.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">ElastiCache Redis</text>
-<text x="760.0" y="913.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">carts</text>
-<text x="760.0" y="928.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">catalog cache</text>
-<rect x="895" y="868" width="200" height="82" rx="8" fill="#ffffff" stroke="#ed7100" stroke-width="1.6"/>
-<text x="995.0" y="890.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">order-status Lambda</text>
-<text x="995.0" y="905.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">runs inside the VPC</text>
-<text x="995.0" y="920.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">updates order status in MySQL</text>
-<text x="995.0" y="935.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">emits OrderStatusUpdated</text>
-<polyline points="560,830 560,866" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<polyline points="760,830 760,866" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<text x="568" y="852" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#57606a" text-anchor="start">pods → DB</text>
-<text x="768" y="852" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#57606a" text-anchor="start">pods → Redis</text>
-<polyline points="995,950 995,985 560,985 560,952" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<text x="700" y="1000" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#57606a" text-anchor="start">status update</text>
-<text x="470" y="1050" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#0e5a86" text-anchor="start">Data stores and queues: one set per environment · private · encrypted at rest with KMS</text>
-<rect x="1160" y="262" width="580" height="66" rx="8" fill="#ffffff" stroke="#ed7100" stroke-width="1.6"/>
-<text x="1450.0" y="291.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">Amazon ECR</text>
-<text x="1450.0" y="306.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">12 repositories · immutable commit-SHA tags · scan on push</text>
-<polyline points="1158,300 1000,300 1000,343" fill="none" stroke="#57606a" stroke-width="1.6" marker-end="url(#mg)"/>
-<text x="1010" y="292" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#57606a" text-anchor="start">image pull</text>
-<rect x="1160" y="345" width="580" height="425" rx="8" fill="#fdf2f7" stroke="#d6246e" stroke-width="1.8"/>
-<text x="1174" y="365" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#a3134f" text-anchor="start">Event-driven messaging (per environment)</text>
-<rect x="1180" y="375" width="540" height="46" rx="8" fill="#ffffff" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1450.0" y="394.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">Amazon EventBridge · retail event bus</text>
-<text x="1450.0" y="409.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">routes each event type to its queue with a rule</text>
-<line x1="1695" y1="421" x2="1695" y2="640" stroke="#d6246e" stroke-width="2"/>
-<rect x="1460" y="455" width="210" height="30" rx="15" fill="#fbd3e4" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1565" y="474" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#a3134f" text-anchor="middle">rule: OrderCreated</text>
-<polyline points="1695,470 1672,470" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<rect x="1250" y="446" width="180" height="48" rx="8" fill="#ffffff" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1340.0" y="466.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">SQS inventory-q</text>
-<text x="1340.0" y="481.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">+ dead-letter queue (3 tries)</text>
-<polyline points="1460,470 1432,470" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<circle cx="1446" cy="448" r="11" fill="#d6246e"/>
-<text x="1446" y="452" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
-<rect x="1460" y="540" width="210" height="30" rx="15" fill="#fbd3e4" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1565" y="559" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#a3134f" text-anchor="middle">rule: OrderStatusUpdated</text>
-<polyline points="1695,555 1672,555" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<rect x="1250" y="531" width="180" height="48" rx="8" fill="#ffffff" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1340.0" y="551.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">SQS notification-q</text>
-<text x="1340.0" y="566.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">+ dead-letter queue (3 tries)</text>
-<polyline points="1460,555 1432,555" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<circle cx="1446" cy="533" r="11" fill="#d6246e"/>
-<text x="1446" y="537" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
-<rect x="1460" y="625" width="210" height="30" rx="15" fill="#fbd3e4" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1565" y="644" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#a3134f" text-anchor="middle">rule: InventoryReserved | Failed</text>
-<polyline points="1695,640 1672,640" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<rect x="1250" y="616" width="180" height="48" rx="8" fill="#ffffff" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1340.0" y="636.5" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">SQS order-status-q</text>
-<text x="1340.0" y="651.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">+ dead-letter queue (3 tries)</text>
-<polyline points="1460,640 1432,640" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<circle cx="1446" cy="618" r="11" fill="#d6246e"/>
-<text x="1446" y="622" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
-<polyline points="1250,470 1067,470" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<polyline points="1250,555 1067,555" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<polyline points="1250,640 1120,640 1120,909 1097,909" fill="none" stroke="#d6246e" stroke-width="2" marker-end="url(#mp)"/>
-<polyline points="855,585 870,585 870,400 1178,400" fill="none" stroke="#d6246e" stroke-width="2.2" marker-end="url(#mp)"/>
-<text x="884" y="394" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#d6246e" text-anchor="start">OrderCreated (PutEvents)</text>
-<circle cx="870" cy="610" r="11" fill="#d6246e"/>
-<text x="870" y="614" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
-<rect x="1180" y="690" width="260" height="64" rx="8" fill="#ffffff" stroke="#3b48cc" stroke-width="1.6"/>
-<text x="1310.0" y="711.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">DynamoDB</text>
-<text x="1310.0" y="726.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">inventory stock</text>
-<text x="1310.0" y="741.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">notification log</text>
-<rect x="1460" y="690" width="260" height="64" rx="8" fill="#ffffff" stroke="#d6246e" stroke-width="1.6"/>
-<text x="1590.0" y="711.0" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#1f2328" text-anchor="middle">CloudWatch alarms</text>
-<text x="1590.0" y="726.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">any dead-letter queue not empty</text>
-<text x="1590.0" y="741.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">Lambda errors</text>
-<rect x="1160" y="790" width="580" height="298" rx="8" fill="#fff5f6" stroke="#dd344c" stroke-width="1.8"/>
-<text x="1174" y="810" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#b0243a" text-anchor="start">Security &amp; operations</text>
-<rect x="1180" y="822" width="260" height="118" rx="8" fill="#ffffff" stroke="#dd344c" stroke-width="1.6"/>
-<text x="1310.0" y="862.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">IAM + EKS Pod Identity</text>
-<text x="1310.0" y="877.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">checkout → its own env's bus only</text>
-<text x="1310.0" y="892.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">catalog → its own DB secret</text>
-<text x="1310.0" y="907.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">GitHub → OIDC role, no keys</text>
-<rect x="1460" y="822" width="260" height="118" rx="8" fill="#ffffff" stroke="#dd344c" stroke-width="1.6"/>
-<text x="1590.0" y="870.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">Secrets Manager</text>
-<text x="1590.0" y="885.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">DB passwords</text>
-<text x="1590.0" y="900.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">managed and rotated by RDS</text>
-<rect x="1180" y="954" width="260" height="118" rx="8" fill="#ffffff" stroke="#dd344c" stroke-width="1.6"/>
-<text x="1310.0" y="1002.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">KMS</text>
-<text x="1310.0" y="1017.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">encryption at rest:</text>
-<text x="1310.0" y="1032.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">RDS, secrets, DynamoDB, SQS, ECR</text>
-<rect x="1460" y="954" width="260" height="118" rx="8" fill="#ffffff" stroke="#dd344c" stroke-width="1.6"/>
-<text x="1590.0" y="1002.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2328" text-anchor="middle">CloudWatch</text>
-<text x="1590.0" y="1017.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">logs, Container Insights</text>
-<text x="1590.0" y="1032.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#57606a" text-anchor="middle">alarms on DLQs and Lambda</text>
-<rect x="40" y="1118" width="1720" height="152" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.6"/>
-<text x="56" y="1142" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2328" text-anchor="start">Order flow</text>
-<circle cx="68" cy="1162" r="11" fill="#d6246e"/>
-<text x="68" y="1166" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
-<text x="88" y="1166" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#1f2328" text-anchor="start">checkout saves the order as PENDING in RDS MySQL, then publishes OrderCreated to EventBridge</text>
-<circle cx="68" cy="1186" r="11" fill="#d6246e"/>
-<text x="68" y="1190" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
-<text x="88" y="1190" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#1f2328" text-anchor="start">rule → inventory-q → inventoryservice reserves stock in DynamoDB, publishes InventoryReserved or InventoryFailed</text>
-<circle cx="68" cy="1210" r="11" fill="#d6246e"/>
-<text x="68" y="1214" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
-<text x="88" y="1214" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#1f2328" text-anchor="start">rule → order-status-q → Lambda sets the order to CONFIRMED or FAILED in MySQL, publishes OrderStatusUpdated</text>
-<circle cx="68" cy="1234" r="11" fill="#d6246e"/>
-<text x="68" y="1238" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
-<text x="88" y="1238" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#1f2328" text-anchor="start">rule → notification-q → emailservice sends exactly one email and logs it in DynamoDB</text>
-<text x="1010" y="1142" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2328" text-anchor="start">Reliability</text>
-<text x="1010" y="1166" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2328" text-anchor="start">• Each queue retries a message 3 times, then moves it to its dead-letter queue → alarm</text>
-<text x="1010" y="1190" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2328" text-anchor="start">• Consumers are idempotent: a duplicate delivery never creates a second order or email</text>
-<text x="1010" y="1214" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2328" text-anchor="start">• A slow or broken consumer only backs up its own queue</text>
-<line x1="1010" y1="1246" x2="1044" y2="1246" stroke="#1a73e8" stroke-width="2.5"/>
-<text x="1052" y="1250" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#57606a" text-anchor="start">requests (HTTPS, gRPC between services)</text>
-<line x1="1310" y1="1246" x2="1344" y2="1246" stroke="#d6246e" stroke-width="2.5"/>
-<text x="1352" y="1250" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#57606a" text-anchor="start">events</text>
-<line x1="1440" y1="1246" x2="1474" y2="1246" stroke="#57606a" stroke-width="2.5"/>
-<text x="1482" y="1250" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#57606a" text-anchor="start">deploy / data access</text>
-<polyline points="560,206 560,268" fill="none" stroke="#57606a" stroke-width="1.8" marker-end="url(#mg)"/>
-<text x="568" y="226" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#57606a" text-anchor="start">terraform apply</text>
-<polyline points="775,206 775,343" fill="none" stroke="#57606a" stroke-width="1.8" marker-end="url(#mg)"/>
-<text x="783" y="226" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#57606a" text-anchor="start">helm upgrade (dev → approval → prod)</text>
-<polyline points="1300,206 1300,260" fill="none" stroke="#57606a" stroke-width="1.8" marker-end="url(#mg)"/>
-<text x="1308" y="226" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#57606a" text-anchor="start">push images</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1430" viewBox="0 0 1800 1430" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo1ZDNhZjRmYy01Y2MzLTRkNjctOTI3Ni04ODFmNGQwNTMxNDAAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaIiTgrAYz98bgxhLcJFJ8xQAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDozZDk0MzA0Mi0xZDdlLTQzNWMtOWYwNy1kNDJlNjMyMTVkODhscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoNNcJecPwWtuEPVpGK1fkdgAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggnvg/8i7Z8tiI9/wOxAXtJvJg1EW8wBHH4v3VO11oPfykZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaB++tuHWf9k3fPixiDBe5WIAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCAXY9YXJEpflaaBlv0uMnWHhpY/OWnh8tal2ZKpoDcFGGRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBiaZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjVkM2FmNGZjLTVjYzMtNGQ2Ny05Mjc2LTg4MWY0ZDA1MzE0MC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjBkZTUzNGI0LWRiOGQtNDQwNi04NDA0LTNkYmE1OGU0MWYyOHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCCe+D/yLtny2Ij3/A7EBe0m8mDURbzAEcfi/dU7XWg9/KJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggsJJP9LojIDPltL/2x6yZIOT1JxYO7wQhWaIW5WWwdZqiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggg5vT5TwaGIhZPiNWAzYNZsJ/jtzgwF24Lcs1jBlkOKF0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQBALzLMYuqhqw60k1LJyX14vs243ozEsMaoJ3wc4VlX4fcgxn2vjWR15H8JLqdANshTW9Zig4ZyAzcU18f/jgLo=</c2pa:manifest></metadata><defs><marker id="a-dark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/></marker><marker id="a-pink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#E7157B"/></marker><marker id="a-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2563EB"/></marker><marker id="a-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6D28D9"/></marker><marker id="a-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#DC2626"/></marker></defs><rect width="1800" height="1430" fill="#FFFFFF"/><text x="20" y="40" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="700" fill="#0E1726" text-anchor="start">Week 3 Retail Platform on Amazon EKS</text>
+<text x="20" y="66" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="400" fill="#4B5563" text-anchor="start">12 services (Online Boutique + new inventoryservice) · dev and prod on one cluster, isolated by namespace · event-driven order flow · HTTPS on sebngembou-cloud.click</text>
+<rect x="20" y="86" width="1760" height="150" rx="10" fill="#F7F5FF" stroke="#6D28D9" stroke-width="1.6"/>
+<text x="36" y="110" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#6D28D9" text-anchor="start">CI/CD · GitHub Actions · GitHub Flow (short branch → pull request → squash merge to main)</text>
+<rect x="40" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="138.0" y="155.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">Feature branch</text>
+<text x="138.0" y="172.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">feature/ · fix/ · infra/</text>
+<text x="138.0" y="189.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">short-lived</text>
+<path d="M 236 168 L 254 168" fill="none" stroke="#6D28D9" stroke-width="1.6" marker-end="url(#a-purple)"/>
+<rect x="256" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="354.0" y="147.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">Pull request</text>
+<text x="354.0" y="164.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">ci-ok: tests, helm render,</text>
+<text x="354.0" y="181.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">docker build · Checkov</text>
+<text x="354.0" y="198.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">terraform plan (read-only)</text>
+<path d="M 452 168 L 470 168" fill="none" stroke="#6D28D9" stroke-width="1.6" marker-end="url(#a-purple)"/>
+<rect x="472" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="570.0" y="155.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">Merge to main</text>
+<text x="570.0" y="172.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">ruleset: PR + ci-ok,</text>
+<text x="570.0" y="189.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">linear history, no force push</text>
+<path d="M 668 168 L 686 168" fill="none" stroke="#6D28D9" stroke-width="1.6" marker-end="url(#a-purple)"/>
+<rect x="688" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="786.0" y="155.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">AWS login · OIDC</text>
+<text x="786.0" y="172.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">short-lived roles</text>
+<text x="786.0" y="189.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">no stored keys</text>
+<path d="M 884 168 L 902 168" fill="none" stroke="#6D28D9" stroke-width="1.6" marker-end="url(#a-purple)"/>
+<rect x="904" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="1002.0" y="155.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">terraform apply</text>
+<text x="1002.0" y="172.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">VPC · EKS · data · events</text>
+<text x="1002.0" y="189.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">DNS · SES (infra workflow)</text>
+<path d="M 1100 168 L 1118 168" fill="none" stroke="#6D28D9" stroke-width="1.6" marker-end="url(#a-purple)"/>
+<rect x="1120" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="1218.0" y="155.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">Build 12 images</text>
+<text x="1218.0" y="172.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">tag = commit SHA</text>
+<text x="1218.0" y="189.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">push to Amazon ECR</text>
+<path d="M 1316 168 L 1334 168" fill="none" stroke="#6D28D9" stroke-width="1.6" marker-end="url(#a-purple)"/>
+<rect x="1336" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="1434.0" y="155.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">Scan gate</text>
+<text x="1434.0" y="172.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">ECR scan on push</text>
+<text x="1434.0" y="189.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">stops on CRITICAL</text>
+<path d="M 1532 168 L 1550 168" fill="none" stroke="#6D28D9" stroke-width="1.6" marker-end="url(#a-purple)"/>
+<rect x="1552" y="118" width="196" height="100" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.3"/>
+<text x="1650.0" y="147.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#3B1D8F" text-anchor="middle">Deploy dev → prod</text>
+<text x="1650.0" y="164.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">migrate DB · helm · smoke test</text>
+<text x="1650.0" y="181.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">approval → same images</text>
+<text x="1650.0" y="198.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">auto-rollback on failure</text>
+<circle cx="95" cy="300" r="13" fill="none" stroke="#374151" stroke-width="2"/><path d="M 72 340 Q 95 312 118 340" fill="none" stroke="#374151" stroke-width="2"/>
+<text x="95" y="362" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Customer</text>
+<text x="95" y="378" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="400" fill="#4B5563" text-anchor="middle">browser</text>
+<path d="M 95 385 L 95 418" fill="none" stroke="#374151" stroke-width="1.8" marker-end="url(#a-dark)"/>
+<rect x="20" y="420" width="150" height="120" rx="8" fill="#F7F3FF" stroke="#8C4FFF" stroke-width="1.3"/>
+<text x="95.0" y="450.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#4C1D95" text-anchor="middle">Route 53 + ACM</text>
+<text x="95.0" y="467.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">shop. · dev. · grafana.</text>
+<text x="95.0" y="484.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">sebngembou-cloud.click</text>
+<text x="95.0" y="501.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">TLS certificate</text>
+<text x="95.0" y="518.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">(DNS-validated)</text>
+<path d="M 95 602 L 95 544" fill="none" stroke="#374151" stroke-width="1.8" marker-end="url(#a-dark)"/>
+<rect x="20" y="604" width="150" height="58" rx="8" fill="#FFFFFF" stroke="#CBD2DC" stroke-width="1.3"/>
+<text x="95.0" y="629.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">Operator</text>
+<text x="95.0" y="646.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">allow-listed IP only</text>
+<rect x="20" y="700" width="150" height="160" rx="8" fill="#FEF2F2" stroke="#DC2626" stroke-width="1.3"/>
+<text x="95.0" y="733.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#991B1B" text-anchor="middle">Slack</text>
+<text x="95.0" y="750.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">#boutique-deploys</text>
+<text x="95.0" y="767.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">pipeline events</text>
+<text x="95.0" y="784.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">#boutique-alerts</text>
+<text x="95.0" y="801.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">AWS alarms</text>
+<text x="95.0" y="818.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">#boutique-orders</text>
+<text x="95.0" y="835.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">every final order</text>
+<rect x="190" y="250" width="1590" height="915" rx="10" fill="#FBFBFC" stroke="#232F3E" stroke-width="1.6"/>
+<text x="206" y="274" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#232F3E" text-anchor="start">AWS Cloud · us-east-1</text>
+<rect x="210" y="290" width="1062" height="860" rx="10" fill="#FFFFFF" stroke="#3F8624" stroke-width="1.6"/>
+<text x="226" y="314" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#3F8624" text-anchor="start">VPC 10.0.0.0/16 · 2 Availability Zones</text>
+<rect x="230" y="326" width="1022" height="116" rx="10" fill="#F1F8EC" stroke="#3F8624" stroke-width="1.6"/>
+<text x="246" y="350" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#3F8624" text-anchor="start">Public subnets</text>
+<rect x="250" y="356" width="165" height="72" rx="8" fill="#FFFFFF" stroke="#8C4FFF" stroke-width="1.3"/>
+<text x="332.5" y="379.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">ALB · prod</text>
+<text x="332.5" y="396.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">HTTPS 443 (ACM)</text>
+<text x="332.5" y="413.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">TLS 1.2+, 80 → 443</text>
+<rect x="425" y="356" width="165" height="72" rx="8" fill="#FFFFFF" stroke="#8C4FFF" stroke-width="1.3"/>
+<text x="507.5" y="379.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">ALB · dev</text>
+<text x="507.5" y="396.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">HTTPS 443 (ACM)</text>
+<text x="507.5" y="413.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">TLS 1.2+, 80 → 443</text>
+<rect x="620" y="356" width="185" height="72" rx="8" fill="#FFFFFF" stroke="#8C4FFF" stroke-width="1.3"/>
+<text x="712.5" y="379.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">ALB · Grafana</text>
+<text x="712.5" y="396.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">→ Grafana (monitoring)</text>
+<text x="712.5" y="413.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">allow-listed IPs only</text>
+<rect x="1030" y="356" width="200" height="72" rx="8" fill="#FFFFFF" stroke="#3F8624" stroke-width="1.3"/>
+<text x="1130.0" y="379.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">NAT gateway</text>
+<text x="1130.0" y="396.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">outbound internet</text>
+<text x="1130.0" y="413.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">for private subnets</text>
+<path d="M 170 392 L 248 392" fill="none" stroke="#374151" stroke-width="1.8" marker-end="url(#a-dark)"/>
+<rect x="186.75" y="371" width="44.5" height="18" rx="4" fill="#FFFFFF"/>
+<text x="209.0" y="384" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#374151" text-anchor="middle">HTTPS</text>
+<rect x="230" y="458" width="1022" height="682" rx="10" fill="#F3F7FD" stroke="#2563EB" stroke-width="1.6"/>
+<text x="246" y="482" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#2563EB" text-anchor="start">Private subnets</text>
+<rect x="250" y="490" width="982" height="440" rx="10" fill="#FFF8F1" stroke="#ED7100" stroke-width="1.6"/>
+<text x="266" y="514" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#ED7100" text-anchor="start"></text>
+<text x="1216" y="514" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#C2410C" text-anchor="end">Amazon EKS 1.35 · 4 × t3.medium · 110 pods/node · HPA</text>
+<rect x="270" y="528" width="942" height="300" rx="10" fill="#FFFFFF" stroke="#ED7100" stroke-width="1.4" stroke-dasharray="6 4"/>
+<text x="1196" y="548" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#C2410C" text-anchor="end">namespace boutique-prod · boutique-dev (identical)</text>
+<rect x="290" y="566" width="300" height="86" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="440.0" y="596.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">frontend</text>
+<text x="440.0" y="613.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">web UI · the only service behind the ALB</text>
+<text x="440.0" y="630.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">calls the others over gRPC</text>
+<rect x="550.4" y="572" width="33.6" height="18" rx="9" fill="#ED7100" stroke="#ED7100" stroke-width="1"/>
+<text x="567.2" y="585" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">HPA</text>
+<rect x="290" y="666" width="300" height="58" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+<text x="440.0" y="691.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">loadgenerator (dev only)</text>
+<text x="440.0" y="708.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">Locust load and stress tests</text>
+<rect x="290" y="738" width="300" height="76" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1"/>
+<text x="440" y="762" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#9A3412" text-anchor="middle">NetworkPolicies</text>
+<text x="440" y="780" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">deny-all + one allow rule per call</text>
+<text x="440" y="797" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">prod only accepts boutique-prod</text>
+<path d="M 590 609 L 616 609" fill="none" stroke="#374151" stroke-width="1.8" marker-end="url(#a-dark)"/>
+<rect x="584.2" y="585" width="37.6" height="18" rx="4" fill="#FFFFFF"/>
+<text x="603.0" y="598" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#374151" text-anchor="middle">gRPC</text>
+<rect x="620" y="566" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="712.5" y="600.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">productcatalog</text>
+<text x="712.5" y="617.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">MySQL + Redis cache</text>
+<rect x="765.4" y="572" width="33.6" height="18" rx="9" fill="#ED7100" stroke="#ED7100" stroke-width="1"/>
+<text x="782.2" y="585" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">HPA</text>
+<rect x="817" y="566" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="909.5" y="600.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">cart</text>
+<text x="909.5" y="617.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">carts in Redis</text>
+<rect x="962.4" y="572" width="33.6" height="18" rx="9" fill="#ED7100" stroke="#ED7100" stroke-width="1"/>
+<text x="979.2" y="585" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">HPA</text>
+<rect x="1014" y="566" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="1106.5" y="591.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">checkout</text>
+<text x="1106.5" y="608.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">order → MySQL</text>
+<text x="1106.5" y="625.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">publishes OrderCreated</text>
+<rect x="620" y="650" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="712.5" y="684.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">currency · payment</text>
+<text x="712.5" y="701.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">prices, fake card payment</text>
+<rect x="765.4" y="656" width="33.6" height="18" rx="9" fill="#ED7100" stroke="#ED7100" stroke-width="1"/>
+<text x="782.2" y="669" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">HPA</text>
+<rect x="817" y="650" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="909.5" y="684.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">shipping · ad</text>
+<text x="909.5" y="701.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">quotes, text ads</text>
+<rect x="1014" y="650" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="1106.5" y="675.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">inventoryservice</text>
+<text x="1106.5" y="692.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">stock in DynamoDB</text>
+<text x="1106.5" y="709.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">consumes inventory-q</text>
+<rect x="1159.4" y="656" width="33.6" height="18" rx="9" fill="#16A34A" stroke="#16A34A" stroke-width="1"/>
+<text x="1176.2" y="669" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">NEW</text>
+<rect x="620" y="734" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="712.5" y="768.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">recommendation</text>
+<text x="712.5" y="785.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">product suggestions</text>
+<rect x="765.4" y="740" width="33.6" height="18" rx="9" fill="#ED7100" stroke="#ED7100" stroke-width="1"/>
+<text x="782.2" y="753" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">HPA</text>
+<rect x="817" y="734" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="909.5" y="759.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">other services</text>
+<text x="909.5" y="776.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">each with its own</text>
+<text x="909.5" y="793.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">Pod Identity role</text>
+<rect x="1014" y="734" width="185" height="76" rx="8" fill="#FFFFFF" stroke="#FDBA74" stroke-width="1.3"/>
+<text x="1106.5" y="759.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#111827" text-anchor="middle">emailservice</text>
+<text x="1106.5" y="776.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">consumes notification-q</text>
+<text x="1106.5" y="793.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">SES email + Slack</text>
+<text x="270" y="858" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#9A3412" text-anchor="start">Cluster add-ons</text>
+<rect x="280" y="866" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+<text x="365.0" y="889.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">AWS LB Controller</text>
+<text x="365.0" y="906.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">creates the 3 ALBs</text>
+<rect x="468" y="866" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+<text x="553.0" y="889.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Pod Identity agent</text>
+<text x="553.0" y="906.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">AWS role per pod</text>
+<rect x="656" y="866" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+<text x="741.0" y="889.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">metrics-server</text>
+<text x="741.0" y="906.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">CPU for the HPAs</text>
+<rect x="844" y="866" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+<text x="929.0" y="889.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">CloudWatch agent</text>
+<text x="929.0" y="906.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">Container Insights</text>
+<rect x="1032" y="866" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+<text x="1117.0" y="889.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Prometheus + Grafana</text>
+<text x="1117.0" y="906.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">namespace monitoring</text>
+<rect x="250" y="960" width="300" height="96" rx="8" fill="#FFFFFF" stroke="#3B48CC" stroke-width="1.3"/>
+<text x="400.0" y="987.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#1E2A8A" text-anchor="middle">RDS MySQL 8.4</text>
+<text x="400.0" y="1004.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">products · orders</text>
+<text x="400.0" y="1021.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">prod: Multi-AZ standby</text>
+<text x="400.0" y="1038.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">KMS-encrypted · TLS verified</text>
+<rect x="570" y="960" width="250" height="96" rx="8" fill="#FFFFFF" stroke="#3B48CC" stroke-width="1.3"/>
+<text x="695.0" y="995.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#1E2A8A" text-anchor="middle">ElastiCache Redis 7.1</text>
+<text x="695.0" y="1012.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">carts</text>
+<text x="695.0" y="1029.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">catalog cache (5 min)</text>
+<rect x="840" y="960" width="390" height="96" rx="8" fill="#FFFFFF" stroke="#E7157B" stroke-width="1.3"/>
+<text x="1035.0" y="987.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#9D174D" text-anchor="middle">order-status Lambda (in the VPC)</text>
+<text x="1035.0" y="1004.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">consumes order-status-q</text>
+<text x="1035.0" y="1021.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">sets the order CONFIRMED / FAILED in MySQL</text>
+<text x="1035.0" y="1038.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">publishes OrderStatusUpdated</text>
+<path d="M 462 830 L 462 956" fill="none" stroke="#2563EB" stroke-width="1.8" marker-end="url(#a-blue)"/>
+<rect x="446.65" y="835" width="30.700000000000003" height="18" rx="4" fill="#FFF8F1"/>
+<text x="462.0" y="848" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#2563EB" text-anchor="middle">SQL</text>
+<path d="M 654 830 L 654 956" fill="none" stroke="#2563EB" stroke-width="1.8" marker-end="url(#a-blue)"/>
+<rect x="631.75" y="835" width="44.5" height="18" rx="4" fill="#FFF8F1"/>
+<text x="654.0" y="848" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#2563EB" text-anchor="middle">Redis</text>
+<path d="M 1000 1056 L 1000 1080 L 400 1080 L 400 1060" fill="none" stroke="#2563EB" stroke-width="1.8" marker-end="url(#a-blue)"/>
+<rect x="629.45" y="1071" width="141.1" height="18" rx="4" fill="#F3F7FD"/>
+<text x="700.0" y="1084" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#2563EB" text-anchor="middle">order status update</text>
+<text x="250" y="1124" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1E40AF" text-anchor="start" font-style="italic">Data stores, queues and IAM roles: one set per environment · nothing in the private subnets has a public address</text>
+<rect x="1290" y="290" width="470" height="368" rx="10" fill="#FDF2F8" stroke="#E7157B" stroke-width="1.6"/>
+<text x="1306" y="314" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#E7157B" text-anchor="start">Event-driven messaging (per environment)</text>
+<rect x="1310" y="326" width="430" height="62" rx="8" fill="#FFFFFF" stroke="#F9A8D4" stroke-width="1.3"/>
+<text x="1525.0" y="353.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#9D174D" text-anchor="middle">Amazon EventBridge · boutique event bus</text>
+<text x="1525.0" y="370.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">one rule per event type → its own queue</text>
+<rect x="1340" y="410" width="400" height="64" rx="8" fill="#FFFFFF" stroke="#F9A8D4" stroke-width="1.3"/>
+<text x="1540.0" y="438.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#9D174D" text-anchor="middle">inventory-q + DLQ → inventoryservice</text>
+<text x="1540.0" y="455.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">rule: OrderCreated</text>
+<circle cx="1322" cy="442" r="11" fill="#E7157B"/>
+<text x="1322" y="446.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<rect x="1340" y="490" width="400" height="64" rx="8" fill="#FFFFFF" stroke="#F9A8D4" stroke-width="1.3"/>
+<text x="1540.0" y="518.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#9D174D" text-anchor="middle">notification-q + DLQ → emailservice</text>
+<text x="1540.0" y="535.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">rule: OrderStatusUpdated</text>
+<circle cx="1322" cy="522" r="11" fill="#E7157B"/>
+<text x="1322" y="526.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
+<rect x="1340" y="570" width="400" height="64" rx="8" fill="#FFFFFF" stroke="#F9A8D4" stroke-width="1.3"/>
+<text x="1540.0" y="598.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#9D174D" text-anchor="middle">order-status-q + DLQ → Lambda</text>
+<text x="1540.0" y="615.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">rule: InventoryReserved | InventoryFailed</text>
+<circle cx="1322" cy="602" r="11" fill="#E7157B"/>
+<text x="1322" y="606.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+<text x="1310" y="648" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="400" fill="#9D174D" text-anchor="start">DLQ after 3 tries · alarms: DLQ not empty, oldest message &gt; 5 min</text>
+<rect x="1290" y="676" width="225" height="94" rx="8" fill="#FFFFFF" stroke="#3B48CC" stroke-width="1.3"/>
+<text x="1402.5" y="702.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#1E2A8A" text-anchor="middle">Amazon DynamoDB</text>
+<text x="1402.5" y="719.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">inventory stock</text>
+<text x="1402.5" y="736.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">notification log</text>
+<text x="1402.5" y="753.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">point-in-time recovery</text>
+<rect x="1535" y="676" width="225" height="94" rx="8" fill="#FFFFFF" stroke="#DD344C" stroke-width="1.3"/>
+<text x="1647.5" y="702.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#9F1239" text-anchor="middle">Amazon SES</text>
+<text x="1647.5" y="719.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">orders@sebngembou-cloud.click</text>
+<text x="1647.5" y="736.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">DKIM in Route 53</text>
+<text x="1647.5" y="753.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">IAM: only that sender</text>
+<rect x="1290" y="786" width="225" height="94" rx="8" fill="#FFFFFF" stroke="#ED7100" stroke-width="1.3"/>
+<text x="1402.5" y="812.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#9A3412" text-anchor="middle">Amazon ECR</text>
+<text x="1402.5" y="829.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">12 repositories</text>
+<text x="1402.5" y="846.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">immutable SHA tags</text>
+<text x="1402.5" y="863.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">scan on push</text>
+<rect x="1535" y="786" width="225" height="94" rx="8" fill="#FFFFFF" stroke="#DD344C" stroke-width="1.3"/>
+<text x="1647.5" y="812.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#9F1239" text-anchor="middle">Secrets Manager + KMS</text>
+<text x="1647.5" y="829.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">RDS password, rotated</text>
+<text x="1647.5" y="846.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">Slack alerts webhook</text>
+<text x="1647.5" y="863.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">one KMS key per env</text>
+<rect x="1290" y="896" width="470" height="94" rx="8" fill="#FFFFFF" stroke="#E7157B" stroke-width="1.3"/>
+<text x="1525.0" y="930.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#9D174D" text-anchor="middle">Amazon CloudWatch</text>
+<text x="1525.0" y="947.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">Container Insights logs · ALB, SQS, RDS metrics (Grafana)</text>
+<text x="1525.0" y="964.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">alarms → SNS → slack-alerts Lambda → #boutique-alerts</text>
+<rect x="1290" y="1006" width="470" height="128" rx="8" fill="#FFFFFF" stroke="#DD344C" stroke-width="1.3"/>
+<text x="1525.0" y="1032.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700" fill="#9F1239" text-anchor="middle">AWS IAM</text>
+<text x="1525.0" y="1049.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">GitHub OIDC: plan role (read-only, pull requests)</text>
+<text x="1525.0" y="1066.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">deploy role (main and dev/prod environments only)</text>
+<text x="1525.0" y="1083.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">EKS Pod Identity: one role per service per environment,</text>
+<text x="1525.0" y="1100.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">limited to that environment + namespace condition</text>
+<text x="1525.0" y="1117.0" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5563" text-anchor="middle">Grafana: read-only CloudWatch role</text>
+<path d="M 1199 604 L 1240 604 L 1240 357 L 1306 357" fill="none" stroke="#E7157B" stroke-width="1.8" stroke-dasharray="7 4" marker-end="url(#a-pink)"/>
+<circle cx="1240" cy="470" r="11" fill="#E7157B"/>
+<text x="1240" y="474.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+<rect x="1225.6" y="332" width="92.80000000000001" height="18" rx="4" fill="#FBFBFC"/>
+<text x="1272.0" y="345" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#E7157B" text-anchor="middle">OrderCreated</text>
+<path d="M 1336 442 L 1255 442 L 1255 688 L 1203 688" fill="none" stroke="#E7157B" stroke-width="1.8" stroke-dasharray="7 4" marker-end="url(#a-pink)"/>
+<path d="M 1336 522 L 1265 522 L 1265 772 L 1203 772" fill="none" stroke="#E7157B" stroke-width="1.8" stroke-dasharray="7 4" marker-end="url(#a-pink)"/>
+<path d="M 1336 602 L 1282 602 L 1282 1008 L 1234 1008" fill="none" stroke="#E7157B" stroke-width="1.8" stroke-dasharray="7 4" marker-end="url(#a-pink)"/>
+<path d="M 1002 218 L 1002 258" fill="none" stroke="#6D28D9" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#a-purple)"/>
+<rect x="1003.25" y="231" width="113.5" height="18" rx="4" fill="#F7F5FF"/>
+<text x="1060.0" y="244" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#6D28D9" text-anchor="middle">terraform apply</text>
+<path d="M 1650 218 L 1650 272 L 960 272 L 960 486" fill="none" stroke="#6D28D9" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#a-purple)"/>
+<rect x="1054.25" y="263" width="251.5" height="18" rx="4" fill="#FBFBFC"/>
+<text x="1180.0" y="276" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#6D28D9" text-anchor="middle">helm upgrade: dev → approval → prod</text>
+<path d="M 360 428 L 360 562" fill="none" stroke="#374151" stroke-width="1.8" marker-end="url(#a-dark)"/>
+<path d="M 520 428 L 520 562" fill="none" stroke="#374151" stroke-width="1.8" marker-end="url(#a-dark)"/>
+<path d="M 180 238 L 180 770 L 174 770" fill="none" stroke="#DC2626" stroke-width="1.8" stroke-dasharray="2 4" marker-end="url(#a-red)"/>
+<rect x="147.4" y="677" width="65.2" height="18" rx="4" fill="#FFFFFF"/>
+<text x="180.0" y="690" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#DC2626" text-anchor="middle">pipeline</text>
+<path d="M 1760 943 L 1772 943 L 1772 1172 L 180 1172 L 180 830 L 174 830" fill="none" stroke="#DC2626" stroke-width="1.8" stroke-dasharray="2 4" marker-end="url(#a-red)"/>
+<rect x="1339.75" y="1163" width="320.5" height="18" rx="4" fill="#FFFFFF"/>
+<text x="1500.0" y="1176" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#DC2626" text-anchor="middle">CloudWatch alarms → SNS → slack-alerts Lambda</text>
+<path d="M 1023 812 L 1023 942 L 240 942 L 240 1172" fill="none" stroke="#DC2626" stroke-width="1.8" stroke-dasharray="2 4"/>
+<rect x="674.95" y="933" width="210.10000000000002" height="18" rx="4" fill="#F3F7FD"/>
+<text x="780.0" y="946" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#DC2626" text-anchor="middle">order messages (emailservice)</text>
+<rect x="20" y="1180" width="860" height="236" rx="10" fill="#FFFFFF" stroke="#E7157B" stroke-width="1.6"/>
+<text x="36" y="1204" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#E7157B" text-anchor="start">Order flow</text>
+<circle cx="46" cy="1218" r="11" fill="#E7157B"/>
+<text x="46" y="1222.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+<text x="66" y="1222" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">checkout saves the order as PENDING in MySQL, then publishes OrderCreated to EventBridge</text>
+<circle cx="46" cy="1262" r="11" fill="#E7157B"/>
+<text x="46" y="1266.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<text x="66" y="1266" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">inventory-q → inventoryservice reserves stock in DynamoDB, publishes InventoryReserved or Failed</text>
+<circle cx="46" cy="1306" r="11" fill="#E7157B"/>
+<text x="46" y="1310.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+<text x="66" y="1310" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">order-status-q → Lambda sets the order to CONFIRMED or FAILED in MySQL, publishes OrderStatusUpdated</text>
+<circle cx="46" cy="1350" r="11" fill="#E7157B"/>
+<text x="46" y="1354.5" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
+<text x="66" y="1354" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">notification-q → emailservice sends one email (SES) + Slack message, logged once in DynamoDB</text>
+<rect x="900" y="1180" width="450" height="236" rx="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.6"/>
+<text x="916" y="1204" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#2563EB" text-anchor="start">Reliability</text>
+<text x="918" y="1222" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">• Failed pod replaced automatically (~5 s in the chaos test)</text>
+<text x="918" y="1253" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">• HPA adds pods above 70% CPU, removes them after 2 min</text>
+<text x="918" y="1284" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">• 3 tries per message, then dead-letter queue + Slack alarm</text>
+<text x="918" y="1315" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">• Idempotent consumers: no double stock or double email</text>
+<text x="918" y="1346" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">• Helm auto-rollback + HTTPS smoke test on every deploy</text>
+<text x="918" y="1377" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">• Rollback = redeploy an older commit SHA, no rebuild</text>
+<rect x="1370" y="1180" width="410" height="236" rx="10" fill="#FFFFFF" stroke="#374151" stroke-width="1.6"/>
+<text x="1386" y="1204" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700" fill="#374151" text-anchor="start">Legend</text>
+<path d="M 1392 1218 L 1452 1218" fill="none" stroke="#374151" stroke-width="2" marker-end="url(#a-dark)"/>
+<text x="1466" y="1222" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">requests (HTTPS, gRPC)</text>
+<path d="M 1392 1247 L 1452 1247" fill="none" stroke="#E7157B" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#a-pink)"/>
+<text x="1466" y="1251" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">events (EventBridge → SQS)</text>
+<path d="M 1392 1276 L 1452 1276" fill="none" stroke="#2563EB" stroke-width="2" marker-end="url(#a-blue)"/>
+<text x="1466" y="1280" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">data access</text>
+<path d="M 1392 1305 L 1452 1305" fill="none" stroke="#6D28D9" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a-purple)"/>
+<text x="1466" y="1309" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">pipeline: terraform / helm</text>
+<path d="M 1392 1334 L 1452 1334" fill="none" stroke="#DC2626" stroke-width="2" stroke-dasharray="2 4" marker-end="url(#a-red)"/>
+<text x="1466" y="1338" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">notifications to Slack</text>
+<rect x="1392" y="1376" width="44" height="18" rx="9" fill="#ED7100" stroke="#ED7100" stroke-width="1"/>
+<text x="1414" y="1389" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">HPA</text>
+<text x="1446" y="1390" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">autoscaled</text>
+<rect x="1540" y="1376" width="44" height="18" rx="9" fill="#16A34A" stroke="#16A34A" stroke-width="1"/>
+<text x="1562" y="1389" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">NEW</text>
+<text x="1594" y="1390" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#1F2937" text-anchor="start">added to Online Boutique</text></svg>
