@@ -96,6 +96,24 @@ zone in this account (here `sebngembou-cloud.click`):
 
 Without `DOMAIN_NAME` everything stays on the plain `http://<alb>` addresses.
 
+## Order emails (Amazon SES)
+
+emailservice sends a real email for every final order status (confirmed / failed) when
+the customer's address is a **verified recipient**; every other order (load tests,
+`someone@example.com`) stays in log mode. Each email is also logged in DynamoDB.
+
+- `terraform-aws/ses.tf`: the domain identity (sender `orders@<domain>`, DKIM records in
+  Route 53, verified automatically) and one identity per address in the GitHub variable
+  **`SES_RECIPIENTS`** (comma-separated).
+- SES starts in **sandbox** mode: it only delivers to verified addresses. After the infra
+  run, each recipient gets an email *"Amazon Web Services – Email Address Verification
+  Request"*: click the link once. Check: SES console > Identities (both "Verified").
+- emailservice may only send as `orders@<domain>` (IAM condition `ses:FromAddress`).
+- If SES refuses an email, the DynamoDB row is removed and the message retried
+  (3 tries, then the DLQ alarm in Slack), so no email is silently lost.
+
+Test: in the dev shop, check out with your verified address in the email field.
+
 ## Rollback demo (acceptance test step 12)
 
 Every deploy builds all images with the commit SHA as tag (immutable in ECR), and the

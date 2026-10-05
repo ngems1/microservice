@@ -60,3 +60,23 @@ If nothing arrives: **Lambda → week3-boutique-slack-alerts → Monitor → Vie
 - The webhook URLs are stored as GitHub **secrets**, never in the code.
 - The `slack-alerts` Lambda's role can only write its own logs and read that one secret. The webhook URL is copied into Secrets Manager by the workflow, so it is never in the Terraform state.
 - A Slack failure never fails a deployment (`notify-slack.sh` always exits 0).
+
+## Order notifications in Slack (#boutique-orders)
+
+emailservice handles every final order status (CONFIRMED / FAILED, from notification-q).
+Besides the email (log mode) and the DynamoDB notifications row, it can post one line per
+order to a third channel:
+
+> :white_check_mark: Order `7a42cfc3` confirmed [dev]: 2 product(s) reserved, ready to ship.
+> :x: Order `52d8abb4` failed [dev]: out of stock. Customer notified, payment refunded.
+
+Setup (once):
+1. Slack: create the channel `#boutique-orders`, then in the Slack app
+   *Boutique-Microservice* > Incoming Webhooks > **Add New Webhook** > `#boutique-orders`.
+2. GitHub: repository secret **`SLACK_ORDERS_WEBHOOK_URL`** = that webhook URL.
+3. Run deploy: the workflow stores it as the Kubernetes Secret `emailservice-slack`.
+
+Safeguards: posted after the duplicate check (a repeated event never posts twice), at most
+one message every 5 seconds (a load test places thousands of orders: the next message
+says how many were not shown), and a Slack error never blocks or fails an order.
+Remove the GitHub secret to switch it off.

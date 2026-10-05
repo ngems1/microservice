@@ -134,9 +134,22 @@ def start_notification_consumer():
   import boto3
   import notifications
   session = boto3.session.Session(region_name=os.environ.get('AWS_REGION', 'us-east-1'))
+  # Optional: also post each order outcome to Slack (webhook from a Kubernetes Secret).
+  slack = None
+  webhook = os.environ.get('SLACK_ORDERS_WEBHOOK_URL', '')
+  if webhook:
+    slack = notifications.SlackNotifier(webhook, os.environ.get('ENVIRONMENT', ''), logger)
+    logger.info('order notifications also posted to Slack')
+  # Optional: real emails through Amazon SES to the verified (sandbox) recipients.
+  ses = None
+  ses_from = os.environ.get('SES_FROM_ADDRESS', '')
+  ses_to = [a for a in os.environ.get('SES_ALLOWED_RECIPIENTS', '').split(',') if a.strip()]
+  if ses_from and ses_to:
+    ses = notifications.SesSender(session.client('sesv2'), ses_from, ses_to)
+    logger.info('real emails through SES', extra={'from': ses_from, 'recipients': len(ses_to)})
   consumer = notifications.Consumer(
     session.client('sqs'), NOTIFICATION_QUEUE_URL,
-    notifications.NotificationLog(session.client('dynamodb'), NOTIFICATIONS_TABLE), logger)
+    notifications.NotificationLog(session.client('dynamodb'), NOTIFICATIONS_TABLE), logger, slack, ses)
   consumer.last_poll = time.time()  # healthy while the first long poll starts
   threading.Thread(target=consumer.run, name='notification-consumer', daemon=True).start()
 

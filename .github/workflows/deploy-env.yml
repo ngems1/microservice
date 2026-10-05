@@ -111,7 +111,9 @@ jobs:
               emailService:     { notifications: {
                 awsRegion: $region,
                 queueUrl:  $e.notification_queue_url,
-                tableName: $e.notifications_table
+                tableName: $e.notifications_table,
+                sesFromAddress: ($o.ses.value.from_address // ""),
+                sesRecipients:  (($o.ses.value.recipients // []) | join(","))
               } }
             }' state.json > values-terraform.json
           cat values-terraform.json
@@ -189,6 +191,25 @@ jobs:
         if: always()
         run: |
           [ -n "${NS:-}" ] && kubectl -n "$NS" delete secret db-migrate-credentials --ignore-not-found || true
+
+      # Optional: emailservice also posts order outcomes to Slack (#boutique-orders).
+      # GitHub secret -> Kubernetes Secret through a private file (never on a command line).
+      # Without the GitHub secret the Kubernetes Secret is removed and nothing is posted.
+      - name: Slack webhook for order notifications
+        env:
+          SLACK_ORDERS_WEBHOOK_URL: ${{ secrets.SLACK_ORDERS_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_ORDERS_WEBHOOK_URL" ]; then
+            kubectl -n "$NS" delete secret emailservice-slack --ignore-not-found
+            echo "No SLACK_ORDERS_WEBHOOK_URL secret: order notifications stay in the log and DynamoDB only."
+            exit 0
+          fi
+          umask 077
+          printf 'webhook-url=%s\n' "$SLACK_ORDERS_WEBHOOK_URL" > slack.env
+          kubectl -n "$NS" create secret generic emailservice-slack --from-env-file=slack.env \
+            --dry-run=client -o yaml | kubectl apply -f -
+          rm -f slack.env
+          echo "Order notifications will also be posted to Slack."
 
       - name: Remember the current release (for rollback)
         id: before

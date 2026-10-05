@@ -71,6 +71,24 @@ spec:
           value: {{ .queueUrl | quote }}
         - name: NOTIFICATIONS_TABLE
           value: {{ required "emailService.notifications.tableName is required with queueUrl" .tableName | quote }}
+        # Optional: each order outcome is also posted to Slack (#boutique-orders). The
+        # webhook URL is a secret: Kubernetes Secret "emailservice-slack", created by the
+        # deploy workflow from the GitHub secret SLACK_ORDERS_WEBHOOK_URL. No Secret = no Slack.
+        - name: ENVIRONMENT
+          value: {{ $.Release.Namespace | trimPrefix "boutique-" | quote }}
+        {{- if and .sesFromAddress .sesRecipients }}
+        # Real emails through Amazon SES, only to these verified addresses (sandbox).
+        - name: SES_FROM_ADDRESS
+          value: {{ .sesFromAddress | quote }}
+        - name: SES_ALLOWED_RECIPIENTS
+          value: {{ .sesRecipients | quote }}
+        {{- end }}
+        - name: SLACK_ORDERS_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: emailservice-slack
+              key: webhook-url
+              optional: true
         {{- end }}
         {{- end }}
         {{- if .Values.opentelemetryCollector.create }}

@@ -104,6 +104,8 @@ emailService:
     awsRegion: us-east-1
     queueUrl: ""     # SQS notification-q URL
     tableName: ""    # DynamoDB notifications table
+    sesFromAddress: ""   # Amazon SES sender (terraform-aws/ses.tf); empty = log mode only
+    sesRecipients: ""    # comma-separated verified recipients (SES sandbox)
   resources:
     requests:
       cpu: 100m

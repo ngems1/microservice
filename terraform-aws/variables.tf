@@ -84,3 +84,9 @@ variable "domain_name" {
   type        = string
   default     = ""
 }
+
+variable "ses_recipients" {
+  description = "SES sandbox: comma-separated addresses allowed to receive order emails (each gets a verification link from AWS). Set through the GitHub variable SES_RECIPIENTS. Needs domain_name."
+  type        = string
+  default     = ""
+}
