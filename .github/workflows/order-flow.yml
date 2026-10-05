@@ -50,6 +50,9 @@ jobs:
             echo "INVENTORY_TABLE=$(e inventory_table)"
             echo "NOTIFICATIONS_TABLE=$(e notifications_table)"
             echo "LAMBDA_NAME=$(e order_status_lambda)"
+            # Order emails (terraform-aws/ses.tf): sender domain and verified recipients.
+            echo "SES_DOMAIN=$(jq -r '.outputs.tls.value.domain // empty' state.json)"
+            echo "SES_RECIPIENTS=$(jq -r '(.outputs.ses.value.recipients // []) | join(",")' state.json)"
             echo "QUEUES_JSON=$(jq -c --arg env "$ENVIRONMENT" '.outputs.environments.value[$env] as $s
               | [$s.inventory_queue_url, $s.order_status_queue_url, $s.notification_queue_url] + [$s.dlq_urls[]]' state.json)"
           } >> "$GITHUB_ENV"
