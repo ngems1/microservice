@@ -1,0 +1,71 @@
+name: codeql
+
+# SAST: CodeQL reads the application code itself (all 5 languages) and the
+# workflow files, looking for bugs such as injection, unsafe input handling or
+# weak crypto. Results appear in the repository's Security tab > Code scanning.
+#
+# No AWS access here: the job only reads the code (no OIDC role, no secrets).
+# Every language builds without compiling (build-mode none), except Go, which
+# CodeQL builds itself (autobuild finds the 4 Go modules under src/).
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * 1" # Mondays: new CodeQL rules find new issues in unchanged code
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: codeql (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write # upload results to the Security tab
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: go                    # frontend, checkout, productcatalog, shipping
+            build-mode: autobuild
+          - language: csharp                # cartservice
+            build-mode: none
+          - language: java-kotlin           # adservice
+            build-mode: none
+          - language: javascript-typescript # currency, payment
+            build-mode: none
+          - language: python               # email, inventory, recommendation, Lambdas
+            build-mode: none
+          - language: actions               # the GitHub Actions workflows themselves
+            build-mode: none
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+          config: |
+            paths-ignore:
+              - "**/genproto/**"   # generated gRPC code
+              - "**/*_pb2.py"
+              - "**/*_pb2_grpc.py"
+              - "src/loadgenerator/**"
+
+      - if: matrix.build-mode == 'autobuild'
+        uses: github/codeql-action/autobuild@v4
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"

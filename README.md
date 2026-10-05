@@ -167,7 +167,7 @@ Details and the test: [docs/week3/ISOLATION.md](docs/week3/ISOLATION.md).
 | CI/CD | GitHub Actions with OIDC, GitHub Environments for prod approval, GitHub Flow with a ruleset on `main` |
 | Observability | Prometheus, Grafana, CloudWatch Container Insights, CloudWatch alarms |
 | Notifications | Slack incoming webhooks (deploys, alerts, orders), Amazon SES |
-| Security scanning | Checkov (Terraform), ECR scan on push (blocking on CRITICAL) |
+| Security scanning | CodeQL SAST (all 5 languages + workflows), Checkov (Terraform), ECR scan on push (blocking on CRITICAL) |
 | Testing | Python unittest, Helm lint/render, Locust, chaos and isolation scripts |
 
 ---
@@ -239,6 +239,7 @@ flowchart LR
 | Workflow | When | What it does |
 |---|---|---|
 | `ci.yml` | Every pull request | Unit tests (inventory, emailservice, Lambda), Helm lint and render (must contain the HPAs), Docker build of changed services → the `ci-ok` check |
+| `codeql.yml` | Every pull request, push to `main`, weekly | SAST: CodeQL analyses the Go, C#, Java, JavaScript and Python code and the workflows; results in the Security tab |
 | `infra.yml` | PR (plan, read-only role), merge to `main` (apply), manual (`plan` / `apply` / `destroy`) | Terraform + Checkov |
 | `deploy.yml` | Push to `main` touching app code, or manual | Builds and scans, deploys dev, then prod after approval, then monitoring and the isolation test |
 | `deploy-env.yml` | Called by `deploy.yml` | One environment: Load Balancer Controller, DB migrations, Helm, DNS, smoke test, rollback |
@@ -348,7 +349,8 @@ Full notes: [docs/week3/SECURITY.md](docs/week3/SECURITY.md).
   rest; TLS to the database with certificate checks; HTTPS on every public address.
 - **Secrets stay out of code** — RDS passwords managed by RDS in Secrets Manager; Slack webhooks only
   in GitHub secrets (and Secrets Manager for the alerts Lambda); never in Terraform or the repo.
-- **Supply chain** — immutable image tags, ECR scan gate on CRITICAL findings, Checkov on every
+- **Supply chain** — CodeQL static analysis (SAST) of the application code on every pull request,
+  immutable image tags, ECR scan gate on CRITICAL findings, Checkov on every
   Terraform change. ECR's scanner replaced a third-party scanner action after the Trivy GitHub
   Actions compromise (March 2026), so no extra code runs with AWS credentials.
 - **Hardened containers** — non-root users and read-only root filesystems.
