@@ -42,8 +42,9 @@ resource "aws_iam_role_policy" "grafana" {
         # project's log groups: container logs (Container Insights) and our Lambdas.
         Sid      = "ListLogGroups"
         Effect   = "Allow"
-        Action   = ["logs:DescribeLogGroups"]
-        Resource = "*" # DescribeLogGroups can't be scoped to a log group
+        # ListAggregateLogGroupSummaries: the log-group picker in Grafana 13's Explore.
+        Action   = ["logs:DescribeLogGroups", "logs:ListAggregateLogGroupSummaries"]
+        Resource = "*" # these can't be scoped to a log group
       },
       {
         Sid    = "ReadProjectLogs"
