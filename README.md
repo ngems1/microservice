@@ -54,6 +54,12 @@ service, managed AWS data stores and the order events.
 
 ## Architecture
 
+**In plain words**
+
+![How the store works](docs/week3/architecture-simple.png)
+
+**In detail**
+
 ![Architecture](docs/week3/architecture.png)
 
 ```mermaid
@@ -372,6 +378,50 @@ Details: [docs/week3/MONITORING.md](docs/week3/MONITORING.md), [docs/week3/SLACK
 | Consumer failure | chaos `consumer-failure`, 8 min | Backlog alarm 🔴 then 🟢 in Slack, queued orders processed after the restart, DLQs at 0 |
 | Isolation | isolation-test | dev → prod services BLOCKED; dev role → prod DynamoDB AccessDenied |
 | Order email | Checkout with a verified address | SES email "Your order … is confirmed" + Slack message |
+
+---
+
+## Screenshots
+
+### The shop and an order, end to end
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/shop-home.png" alt="Shop home page on HTTPS, footer showing the release version"><br><sub>The shop, with the release (commit SHA) in the footer</sub></td>
+<td width="50%"><img src="docs/screenshots/order-complete.png" alt="Order complete page"><br><sub>Checkout: the order is placed</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/order-email.png" alt="Confirmation email from orders@sebngembou-cloud.click"><br><sub>Real confirmation email sent by Amazon SES</sub></td>
+<td><img src="docs/screenshots/slack-order.png" alt="Slack message: order confirmed"><br><sub>Same order in Slack <code>#boutique-orders</code></sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/screenshots/order-flow.png" alt="order-flow workflow: orders CONFIRMED or FAILED with reason INSUFFICIENT_STOCK"><br><sub><code>order-flow</code> workflow: orders in RDS move from PENDING to CONFIRMED, or FAILED when stock runs out</sub></td>
+</tr>
+</table>
+
+### Pipeline
+
+<table>
+<tr>
+<td colspan="2"><img src="docs/screenshots/deploy-pipeline.png" alt="deploy.yml run: setup, 12 image builds, deploy dev, approval, deploy prod, isolation test, notify"><br><sub><code>deploy.yml</code>: 12 builds → dev → approval → prod → isolation test</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/screenshots/slack-deploy.png" alt="Slack deploy message with every stage green"><br><sub>The result posted to Slack <code>#boutique-deploys</code></sub></td>
+</tr>
+</table>
+
+### Monitoring and failure tests
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/grafana-kubernetes.png" alt="Grafana: CPU and memory per pod and per node during a load test"><br><sub>Grafana during a load test: pod and node CPU rise, then settle</sub></td>
+<td width="50%"><img src="docs/screenshots/grafana-application.png" alt="Grafana: catalog cache hit rate and MySQL loads"><br><sub>Application metrics: catalog cache hit rate, MySQL loads</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/slack-alarm.png" alt="Slack alarm red then green for the inventory backlog"><br><sub>Chaos <code>consumer-failure</code>: backlog alarm red, then green, in <code>#boutique-alerts</code></sub></td>
+<td><img src="docs/screenshots/chaos-pod-failure.png" alt="Chaos pod failure summary: new pod ready after 5 s, 0 errors"><br><sub>Chaos <code>pod-failure</code>: new pod Ready in 5 s, 0 failed requests</sub></td>
+</tr>
+</table>
 
 ---
 
