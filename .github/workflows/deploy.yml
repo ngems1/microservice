@@ -202,6 +202,7 @@ jobs:
     # Runs after a successful build, or straight away when redeploying an existing tag.
     if: always() && needs.setup.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped')
     uses: ./.github/workflows/deploy-env.yml
+    secrets: inherit # SLACK_ORDERS_WEBHOOK_URL (optional) for the order notifications
     with:
       environment: dev
       image_tag: ${{ needs.setup.outputs.tag }}
@@ -210,6 +211,7 @@ jobs:
     needs: [setup, deploy-dev]
     if: always() && needs.deploy-dev.result == 'success' && inputs.target != 'dev-only'
     uses: ./.github/workflows/deploy-env.yml
+    secrets: inherit # SLACK_ORDERS_WEBHOOK_URL (optional) for the order notifications
     with:
       environment: prod
       image_tag: ${{ needs.setup.outputs.tag }}

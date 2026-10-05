@@ -33,6 +33,9 @@ class FakeDynamo:
             raise FakeAwsError("ConditionalCheckFailedException")
         self.items[key] = Item
 
+    def delete_item(self, TableName, Key):
+        self.items.pop(Key["notificationId"]["S"], None)
+
 
 class FakeLogger:
     def __init__(self):
@@ -143,6 +146,92 @@ class ConsumerTest(unittest.TestCase):
         consumer = n.Consumer(sqs, "q", n.NotificationLog(FakeDynamo(fail="InternalServerError"), "t"), FakeLogger())
         self.assertEqual(consumer.poll_once(wait_seconds=0), ["error"])
         self.assertEqual(sqs.deleted, [])
+
+
+
+class FakeClock:
+    def __init__(self):
+        self.now = 1000.0
+
+    def __call__(self):
+        return self.now
+
+
+class SlackTest(unittest.TestCase):
+    def setUp(self):
+        self.posts, self.clock = [], FakeClock()
+        self.slack = n.SlackNotifier("https://hooks.example/x", "dev", FakeLogger(), min_interval=5,
+                                     post=self.posts.append, clock=self.clock)
+
+    def test_confirmed_and_failed_texts(self):
+        self.assertTrue(self.slack.notify(n.parse_message(status_event("abc-1", "CONFIRMED"))))
+        self.clock.now += 10
+        self.assertTrue(self.slack.notify(n.parse_message(status_event("def-2", "FAILED"))))
+        self.assertIn("Order `abc` confirmed [dev]", self.posts[0]["text"])
+        self.assertIn("Order `def` failed [dev]: out of stock", self.posts[1]["text"])
+
+    def test_rate_limit_counts_skipped(self):
+        order = n.parse_message(status_event())
+        self.assertTrue(self.slack.notify(order))
+        self.assertFalse(self.slack.notify(order))   # 0 s later: skipped
+        self.assertFalse(self.slack.notify(order))
+        self.clock.now += 6
+        self.assertTrue(self.slack.notify(order))
+        self.assertEqual(len(self.posts), 2)
+        self.assertIn("+2 more", self.posts[1]["text"])
+
+    def test_slack_error_never_raises(self):
+        def broken(_):
+            raise OSError("network down")
+        slack = n.SlackNotifier("https://hooks.example/x", post=broken, clock=self.clock)
+        self.assertFalse(slack.notify(n.parse_message(status_event())))
+
+    def test_duplicate_event_posts_once(self):
+        log = n.NotificationLog(FakeDynamo(), "t")
+        logger = FakeLogger()
+        n.handle(status_event(), log, logger, self.slack)
+        self.clock.now += 10
+        self.assertEqual(n.handle(status_event(), log, logger, self.slack), "duplicate")
+        self.assertEqual(len(self.posts), 1)
+
+
+
+class FakeSes:
+    def __init__(self, fail=False):
+        self.sent, self.fail = [], fail
+
+    def send_email(self, FromEmailAddress, Destination, Content):
+        if self.fail:
+            raise FakeAwsError("MessageRejected")
+        self.sent.append((FromEmailAddress, Destination["ToAddresses"][0], Content["Simple"]["Subject"]["Data"]))
+        return {"MessageId": f"m-{len(self.sent)}"}
+
+
+class SesTest(unittest.TestCase):
+    def setUp(self):
+        self.ddb, self.logger = FakeDynamo(), FakeLogger()
+        self.log_table = n.NotificationLog(self.ddb, "notifications")
+
+    def test_verified_recipient_gets_a_real_email(self):
+        ses = n.SesSender(FakeSes(), "orders@shop.example", ["Me@Mail.example"])
+        self.assertEqual(n.handle(status_event(email="me@mail.example"), self.log_table, self.logger, ses=ses), "sent")
+        self.assertEqual(ses.ses.sent, [("orders@shop.example", "me@mail.example", "Your order o is confirmed")])
+        self.assertEqual(self.ddb.items["o-1#CONFIRMED"]["delivery"]["S"], "ses")
+
+    def test_other_recipients_stay_in_log_mode(self):
+        ses = n.SesSender(FakeSes(), "orders@shop.example", ["me@mail.example"])
+        n.handle(status_event(email="someone@example.com"), self.log_table, self.logger, ses=ses)
+        self.assertEqual(ses.ses.sent, [])
+        self.assertEqual(self.ddb.items["o-1#CONFIRMED"]["delivery"]["S"], "log")
+
+    def test_ses_error_releases_the_row_so_the_retry_sends(self):
+        ses = n.SesSender(FakeSes(fail=True), "orders@shop.example", ["me@mail.example"])
+        with self.assertRaises(FakeAwsError):
+            n.handle(status_event(email="me@mail.example"), self.log_table, self.logger, ses=ses)
+        self.assertNotIn("o-1#CONFIRMED", self.ddb.items)
+        ses.ses.fail = False
+        self.assertEqual(n.handle(status_event(email="me@mail.example"), self.log_table, self.logger, ses=ses), "sent")
+        self.assertEqual(len(ses.ses.sent), 1)
 
 
 if __name__ == "__main__":

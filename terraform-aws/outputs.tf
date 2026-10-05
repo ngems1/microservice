@@ -40,3 +40,11 @@ output "tls" {
     hosts           = local.tls_hosts
   } : null
 }
+
+output "ses" {
+  description = "Order emails (emailservice): sender and the verified recipients (null without a domain)."
+  value = local.ses_enabled ? {
+    from_address = local.ses_from
+    recipients   = sort(tolist(local.ses_recipients))
+  } : null
+}

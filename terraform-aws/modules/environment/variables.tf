@@ -52,3 +52,15 @@ variable "lambda_source_dir" {
   description = "Folder with the order-status Lambda code (and its vendored pymysql)."
   type        = string
 }
+
+variable "ses_from_address" {
+  description = "Sender of the order emails (empty = emailservice gets no SES permission)."
+  type        = string
+  default     = ""
+}
+
+variable "ses_identity_arns" {
+  description = "SES identities emailservice may send with (domain + sandbox recipients)."
+  type        = list(string)
+  default     = []
+}

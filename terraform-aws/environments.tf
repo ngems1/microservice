@@ -32,4 +32,8 @@ module "env" {
   db_backup_retention_days = each.value.db_backup_retention_days
 
   lambda_source_dir = "${path.module}/lambda/order_status"
+
+  # Order emails (ses.tf): emailservice may send as this address only.
+  ses_from_address  = local.ses_from
+  ses_identity_arns = concat(aws_sesv2_email_identity.domain[*].arn, [for r in aws_sesv2_email_identity.recipient : r.arn])
 }

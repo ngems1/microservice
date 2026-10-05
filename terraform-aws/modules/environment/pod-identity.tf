@@ -74,23 +74,9 @@ locals {
       },
     ])
 
-    # Notification service: consumes notification-q, logs every message sent.
-    emailservice = jsonencode([
-      {
-        Sid       = "ConsumeNotificationQueue"
-        Effect    = "Allow"
-        Action    = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:ChangeMessageVisibility", "sqs:GetQueueAttributes"]
-        Resource  = aws_sqs_queue.queue["notification"].arn
-        Condition = local.this_namespace_only
-      },
-      {
-        Sid       = "NotificationLog"
-        Effect    = "Allow"
-        Action    = ["dynamodb:GetItem", "dynamodb:PutItem"]
-        Resource  = aws_dynamodb_table.notifications.arn
-        Condition = local.this_namespace_only
-      },
-    ])
+    # Notification service: consumes notification-q, logs every message sent, and
+    # sends real emails through SES when a sender is configured (ses.tf).
+    emailservice = var.ses_from_address == "" ? jsonencode(local.emailservice_base) : jsonencode(concat(local.emailservice_base, local.emailservice_ses))
   }
 }
 
@@ -120,4 +106,42 @@ resource "aws_eks_pod_identity_association" "pod" {
   namespace       = var.namespace
   service_account = each.key
   role_arn        = aws_iam_role.pod[each.key].arn
+}
+
+# emailservice statements (kept apart so the SES part can be left out).
+locals {
+  emailservice_base = [
+    {
+      Sid       = "ConsumeNotificationQueue"
+      Effect    = "Allow"
+      Action    = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:ChangeMessageVisibility", "sqs:GetQueueAttributes"]
+      Resource  = aws_sqs_queue.queue["notification"].arn
+      Condition = local.this_namespace_only
+    },
+    {
+      Sid    = "NotificationLog"
+      Effect = "Allow"
+      # DeleteItem: the log row is removed again when SES refuses an email, so the
+      # retried message can send it (otherwise the retry would look like a duplicate).
+      Action    = ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem"]
+      Resource  = aws_dynamodb_table.notifications.arn
+      Condition = local.this_namespace_only
+    },
+  ]
+
+  emailservice_ses = [
+    {
+      # Real order emails, only as orders@<domain>.
+      Sid      = "SendOrderEmails"
+      Effect   = "Allow"
+      Action   = ["ses:SendEmail"]
+      Resource = var.ses_identity_arns
+      Condition = {
+        StringEquals = {
+          "aws:PrincipalTag/kubernetes-namespace" = var.namespace
+          "ses:FromAddress"                       = var.ses_from_address
+        }
+      }
+    },
+  ]
 }
